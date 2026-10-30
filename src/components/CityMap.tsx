@@ -4,6 +4,7 @@ import { Place, LAYERS, Walk, placeById } from '../data/places'
 import { RINGS, RingId, elementById } from '../data/rings'
 import { QUARTERS } from '../data/city'
 import { profile, Doc } from '../lib/logic'
+import { PATHS as paths } from '../data/paths'
 
 const RAD: Record<RingId, number> = { tnua: 42, lev: 30, ruach: 18 }
 
@@ -28,9 +29,11 @@ type Props = {
   onMapClick?: (lat: number, lng: number) => void
   fit?: boolean
   height?: string
+  me?: [number, number] | null
+  numbered?: boolean
 }
 
-export default function CityMap({ places, selected, onSelect, walks = [], showQuarters = true, docs = [], onMapClick, fit, height = '100%' }: Props) {
+export default function CityMap({ places, selected, onSelect, walks = [], showQuarters = true, docs = [], onMapClick, fit, height = '100%', me, numbered }: Props) {
   const el = useRef<HTMLDivElement>(null)
   const map = useRef<L.Map | null>(null)
   const layer = useRef<L.LayerGroup | null>(null)
@@ -69,12 +72,22 @@ export default function CityMap({ places, selected, onSelect, walks = [], showQu
       })
     }
     walks.forEach((w) => {
-      const pts = w.stops.map((s) => placeById(s.place)).filter(Boolean).map((p) => [p!.lat, p!.lng] as [number, number])
+      // שביל אמיתי לאורך הרחובות, מחושב מראש בניתוב להולכי רגל. בלי שביל: קו ישר מקווקו.
+      const real = paths[w.id]?.line
+      const pts = real || w.stops.map((s) => placeById(s.place)).filter(Boolean).map((p) => [p!.lat, p!.lng] as [number, number])
       const color = w.ring ? RINGS.find((r) => r.id === w.ring)!.color : '#14202B'
-      if (w.ring && pts.length > 2) pts.push(pts[0])
-      L.polyline(pts, { color: '#fff', weight: 9, opacity: 0.8 }).addTo(g)
-      L.polyline(pts, { color, weight: 5, opacity: 0.9, dashArray: w.ring ? undefined : '8 6' }).addTo(g)
+      L.polyline(pts, { color: '#fff', weight: 8, opacity: 0.85, lineJoin: 'round' }).addTo(g)
+      L.polyline(pts, { color, weight: 4, opacity: 0.95, lineJoin: 'round', dashArray: real ? undefined : '6 8' }).addTo(g)
+      if (numbered) w.stops.forEach((s, i) => {
+        const p = placeById(s.place)
+        if (!p) return
+        L.marker([p.lat, p.lng], { interactive: false, zIndexOffset: 2000, icon: L.divIcon({ className: 'pm-pin', html: `<span style="display:grid;place-items:center;width:20px;height:20px;background:${color};color:#fff;font:600 11px 'IBM Plex Mono';border:2px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,.4)">${i + 1}</span>`, iconSize: [20, 20], iconAnchor: [-6, 24] }) }).addTo(g)
+      })
     })
+    if (me) {
+      L.circle(me, { radius: 40, color: '#2B6CA3', weight: 1, fillOpacity: 0.12 }).addTo(g)
+      L.marker(me, { zIndexOffset: 3000, interactive: false, icon: L.divIcon({ className: 'pm-pin', html: '<span class="me-dot"></span>', iconSize: [18, 18], iconAnchor: [9, 9] }) }).addTo(g)
+    }
     places.forEach((p) => {
       const sel = p.id === selected
       const size = sel ? 44 : 28
@@ -96,11 +109,11 @@ export default function CityMap({ places, selected, onSelect, walks = [], showQu
         .bindTooltip(`<strong>${elementById(d.element).name}: ${d.state}</strong><br/>${d.note || ''}`, { className: 'pm-tip', direction: 'top' })
         .addTo(g)
     })
-    if (fit && places.length) {
+    if (fit && places.length && !me) {
       const b = L.latLngBounds(places.map((p) => [p.lat, p.lng] as [number, number]))
       m.fitBounds(b.pad(0.25), { maxZoom: 15 })
     }
-  }, [places, selected, walks, showQuarters, docs, fit, onSelect])
+  }, [places, selected, walks, showQuarters, docs, fit, onSelect, me, numbered])
 
   useEffect(() => {
     const m = map.current

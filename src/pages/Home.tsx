@@ -7,6 +7,7 @@ import { PLACES, WALKS, LAYERS } from '../data/places'
 import { QUARTERS } from '../data/city'
 import { cityStats } from '../lib/logic'
 import { href } from '../lib/route'
+import { SENSES } from '../data/experience'
 
 const LOOP = [
   { n: '01', t: 'מתעדים', d: 'כל ספסל, צל, שלט, פנס, גרפיטי ופסל, נקודה על המפה, עם מצב: קיים, חסר או פגום.' },
@@ -84,6 +85,26 @@ export default function Home() {
               <p>{s.d}</p>
             </div>
           ))}
+        </div>
+
+        <h2 className="section-title">חוויה בכל החושים</h2>
+        <p className="section-sub">לא רק לקרוא על העיר: לראות אותה באור, לשמוע אותה בקול, לשחק בה ולנשום בה.</p>
+        <div className="mosaic">
+          {[
+            { src: '/media/s14-arches.jpg', t: 'מיפוי הקרנה על קשתות המצודה', to: 'mapping', cls: 'm-big' },
+            { src: '/media/s01-night.jpg', t: 'המגדלור בלילה', to: 'mapping', cls: 'm-wide' },
+            { src: '/media/s25-eshkol.jpg', t: 'קירות המנוע: גרפיטי וקיר ירוק', to: 'walls', cls: '' },
+            { src: '/media/s07-c.jpg', t: 'סיור חי בטבעת הלב', to: 'tour', cls: '' },
+            { src: '/media/archive-shikunim.jpg', t: 'עיר בריחה: תיבת הארכיון', to: 'games', cls: 'm-wide' },
+          ].map((m) => (
+            <a key={m.src} href={href(m.to, m.to === 'tour' ? { id: 'ring-lev' } : undefined)} className={m.cls} style={{ position: 'relative', overflow: 'hidden', display: 'block' }}>
+              <figure style={{ margin: 0, height: '100%' }}><img src={m.src} alt={m.t} loading="lazy" /><figcaption>{m.t}</figcaption></figure>
+            </a>
+          ))}
+        </div>
+        <div className="row" style={{ marginTop: 10, gap: 14 }}>
+          {SENSES.map((s) => <span key={s.id} className="sense-chip"><i className={s.texture} />{s.name}</span>)}
+          <a className="press btn" href={href('xp')} style={{ marginInlineStart: 'auto' }}>לכל החוויה</a>
         </div>
 
         <h2 className="section-title">אבחנה עירונית במבט אחד</h2>

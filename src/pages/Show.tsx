@@ -7,6 +7,7 @@ import { RINGS, RingId } from '../data/rings'
 import { PLACES, WALKS, LAYERS } from '../data/places'
 import { cityStats, profile, total } from '../lib/logic'
 import { href } from '../lib/route'
+import { SENSES } from '../data/experience'
 
 // מצגת לראש העיר: נבנית מהנתונים, כך שכל שינוי באטלס מופיע גם כאן.
 export default function Show() {
@@ -91,6 +92,31 @@ export default function Show() {
           </div>
           <Lines className="big" text="קשת קצרה היא פער. ==ההמלצה נגזרת מהפער, לא מהטעם האישי.==" />
         </>
+      ),
+    },
+    {
+      k: 'חוויה',
+      body: (
+        <div className="grid-2" style={{ alignItems: 'center' }}>
+          <div>
+            <h2>לא לקרוא על העיר. לחוות אותה.</h2>
+            <Lines className="big" text="סיור חי שמזהה את התחנה לפי מיקום, מקריא, מראה אז והיום ומקליט זיכרונות. עיר בריחה בטבעת הלב. ==הצבע אומר איפה, הטקסטורה אומרת איך.==" />
+            <div className="row" style={{ marginTop: 14 }}>{SENSES.map((x) => <span key={x.id} className="sense-chip" style={{ color: '#fff' }}><i className={x.texture} />{x.name}</span>)}</div>
+          </div>
+          <img src="/media/s07-c.jpg" alt="מרכז רובע א'" style={{ width: '100%', maxHeight: '58vh', objectFit: 'cover', boxShadow: '0 20px 50px rgba(0,0,0,.4)' }} />
+        </div>
+      ),
+    },
+    {
+      k: 'אור',
+      body: (
+        <div className="grid-2" style={{ alignItems: 'center' }}>
+          <img src="/media/s14-arches.jpg" alt="קשתות מצודת אשדוד ים" style={{ width: '100%', maxHeight: '58vh', objectFit: 'cover', filter: 'brightness(.75)', boxShadow: '0 20px 50px rgba(0,0,0,.4)' }} />
+          <div>
+            <h2>הבניין מספר את עצמו באור</h2>
+            <Lines className="big" text="מיפוי הקרנה על בית קנדה, המצודה, המגדלור ותחנת הכוח. בלי לגעת במבנה. ==פראג הקרינה 600 שנה על השעון שלה. אשדוד תקרין 70 שנה על בית קנדה.==" />
+          </div>
+        </div>
       ),
     },
     {
