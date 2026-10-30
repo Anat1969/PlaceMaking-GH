@@ -9,7 +9,7 @@ import { coverOf } from '../data/media'
 import { profile } from '../lib/logic'
 
 const PALETTE = [
-  { name: 'חול־נייר', hex: '#F5EFE4', means: 'הרקע. הדיונה שעליה נבנתה העיר.' },
+  { name: 'רקע נקי', hex: '#F7F8FA', means: 'רקע שקט למידע העירוני.' },
   { name: 'ים עמוק', hex: '#0E3A53', means: 'כותרות, לילה, ומסגרת לכל השאר.' },
   { name: 'כתום התנועה', hex: '#D9822B', means: 'טבעת חיצונית: גוף, ים, דיונה ונחל.' },
   { name: 'בוגנוויליה הלב', hex: '#B83C6F', means: 'טבעת אמצעית: זיכרון, קהילה ומקימים.' },
@@ -35,7 +35,7 @@ const COMPOSITIONS = [
 
 const RULES = [
   ['צבע אומר איפה', 'צבע של טבעת רק למה ששייך לטבעת.'],
-  ['טקסטורה אומרת איך', 'לכל חוש טקסטורה אחת, בשלט ובמסך.'],
+  ['אייקון אומר איך', 'קודים קוויים מינימליים; בלי טקסטורות רקע.'],
   ['קנה מידה אומר מאיזה מרחק', 'טקסט גדול לעיר, פרט קטן לילד.'],
   ['כפתור מרובע, מקום עגול', 'מה שלוחצים עליו מרובע. מה שמבקרים בו עגול.'],
   ['תמונה אמיתית לפני איור', 'צילום מתיק התיעוד קודם. איור רק כשאין צילום.'],
@@ -76,7 +76,7 @@ export default function Language() {
     <div className="page">
       <span className="label">שפה עיצובית</span>
       <h1 className="page-title">עיר של טבעות: השפה</h1>
-      <div className="page-sub"><Lines text="אותה שפה במסך, בשלט, במפה ובאירוע. ==צבע אומר איפה, טקסטורה אומרת איך, קנה מידה אומר מאיזה מרחק.==" /></div>
+      <div className="page-sub"><Lines text="אותה שפה במסך, בשלט, במפה ובאירוע. ==צבע אומר איפה, אייקון אומר איך, קנה מידה אומר מאיזה מרחק.==" /></div>
 
       <h2 className="section-title">צבעים</h2>
       <div className="grid-kpi" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 140px), 1fr))' }}>
@@ -102,16 +102,16 @@ export default function Language() {
         ))}
       </div>
 
-      <h2 className="section-title">טקסטורות: חוש לכל טקסטורה</h2>
+      <h2 className="section-title">חושים: קוד פשוט לכל ערוץ</h2>
       <div className="grid-kpi" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 150px), 1fr))' }}>
         {SENSES.map((s) => (
           <div key={s.id} className="card" style={{ padding: 0, overflow: 'hidden' }}>
-            <div className={s.texture} style={{ height: 90 }} />
+            <div style={{height:56,display:"grid",placeItems:"center",fontFamily:"var(--mono)",fontSize:18,borderBottom:"1px solid var(--rule)"}}>{s.id==='see'?'01':s.id==='hear'?'02':s.id==='touch'?'03':s.id==='breathe'?'04':'05'}</div>
             <div style={{ padding: 10 }}><strong>{s.name}</strong><p className="muted" style={{ margin: 0, fontSize: 12 }}>{s.line}</p></div>
           </div>
         ))}
         <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
-          <div className="tx-water" style={{ height: 90 }} />
+          <div style={{height:56,display:"grid",placeItems:"center",fontFamily:"var(--mono)",fontSize:18}}>06</div>
           <div style={{ padding: 10 }}><strong>מים</strong><p className="muted" style={{ margin: 0, fontSize: 12 }}>הים והנחל, בכל מפה.</p></div>
         </div>
       </div>

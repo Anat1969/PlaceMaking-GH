@@ -28,8 +28,8 @@ export type Place = {
 export const LAYERS: Record<Layer, { name: string; color: string; desc: string }> = {
   heritage: { name: 'אתרי שימור וזיכרון', color: '#7A5230', desc: '34 אתרים מרשימת השימור והתיעוד' },
   renewal: { name: 'התחדשות עירונית', color: '#4E5B6E', desc: '17 מתחמי פינוי־בינוי, מתוך "מה נבנה סביבי"' },
-  project: { name: 'מיזמי פלייסמייקינג', color: '#1F8A5B', desc: '7 המיזמים של אגף אדריכלות העיר' },
-  anchor: { name: 'עוגני הטבעות', color: '#2B6CA3', desc: 'מוסדות התרבות, הים והדיונה, לפי מצגת עיר של טבעות' },
+  project: { name: 'מיזמי פלייסמייקינג', color: '#526862', desc: '7 המיזמים של אגף אדריכלות העיר' },
+  anchor: { name: 'עוגני הטבעות', color: '#596774', desc: 'מוסדות התרבות, הים והדיונה, לפי מצגת עיר של טבעות' },
 }
 
 const SHIMUR_SRC = { label: 'רשימת שימור ותיק תיעוד, אשדוד', url: 'https://shimur-gh.vercel.app' }

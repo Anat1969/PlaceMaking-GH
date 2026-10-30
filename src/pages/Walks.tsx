@@ -18,7 +18,7 @@ const avgProfile = (ps: Place[]) => Object.fromEntries(RINGS.map((r) => [r.id, M
 export function WalksPage() {
   return (
     <div className="page">
-      <h1 className="page-title">מסלולי שיטוט ושהייה</h1>
+      <a className="press chip" href="#/route-editor">עריכת הטבעות על המפה</a><h1 className="page-title">מסלולי שיטוט ושהייה</h1>
       <div className="page-sub"><Lines text={`**${WALKS.length} מסלולים**: שלוש הטבעות, ותשעה מסלולי מורשת מרשימת השימור. ==כל מסלול נמדד כמו מקום: מה חסר לאורכו.==`} /></div>
       <div className="grid-3">
         {WALKS.map((w) => {

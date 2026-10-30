@@ -1,3 +1,4 @@
+import VoiceAnswer from './VoiceAnswer'
 import { useState } from 'react'
 import { Place } from '../data/places'
 import { photosOf } from '../data/media'
@@ -24,6 +25,6 @@ export default function PlaceKnowledge({ p }: { p: Place }) {
     <p className="muted">{p.layer === 'renewal' || p.layer === 'project' ? `תכנון · ${p.eraLabel}. שנת ציר הזמן היא אומדן תצוגה, לא מועד ביצוע מאושר.` : `${p.eraLabel} · שיוך הזמן ברשומה עשוי להיות משוער.`}</p>
     <strong>מערכות זהות · שיוך מוצע</strong>
     <div className="row" style={{ marginTop: 6 }}>{proposedSystems(p).map((id) => <span className="chip" key={id}>{SYSTEMS[id]}</span>)}</div>
-    <details style={{ marginTop: 14 }}><summary>קריאה תכנונית של המקום</summary><p className="muted">הערות עבודה ופרשנות שלך, נשמרות במכשיר זה בלבד.</p>{FIELDS.map(([key, title]) => <label className="knowledge-field" key={key}><strong>{title}</strong><textarea className="field" rows={2} value={notes[key]} onChange={(e) => { const next = { ...notes, [key]: e.target.value }; setNotes(next); try { localStorage.setItem('pm-knowledge-' + p.id, JSON.stringify(next)); setSave('נשמר במכשיר') } catch { setSave('השמירה נכשלה. הטקסט נשאר פתוח; העתיקו אותו לפני יציאה.') } }} /></label>)}<p role="status">{save}</p></details>
+    <details style={{ marginTop: 14 }}><summary>קריאה תכנונית של המקום</summary><p className="muted">הערות עבודה ופרשנות שלך, נשמרות במכשיר זה בלבד.</p>{FIELDS.map(([key, title]) => <label className="knowledge-field" key={key}><strong>{title}</strong><textarea className="field" rows={2} value={notes[key]} onChange={(e) => { const next = { ...notes, [key]: e.target.value }; setNotes(next); try { localStorage.setItem('pm-knowledge-' + p.id, JSON.stringify(next)); setSave('נשמר במכשיר') } catch { setSave('השמירה נכשלה. הטקסט נשאר פתוח; העתיקו אותו לפני יציאה.') } }} /></label>)}<VoiceAnswer onText={text=>{const next={...notes,participation:(notes.participation?notes.participation+"\n":"")+text};setNotes(next);try{localStorage.setItem("pm-knowledge-"+p.id,JSON.stringify(next));setSave("התמלול נשמר במכשיר")}catch{setSave("השמירה נכשלה; העתיקו את הטקסט.")}}}/><p role="status">{save}</p></details>
   </section>
 }

@@ -95,6 +95,10 @@ export default function CityMap({ places, selected, onSelect, walks = [], showQu
         const routeTip = document.createElement('span'); routeTip.textContent = `${w.title} · תוואי מוצע בין העוגנים · ${path.source || 'ניתוב מחושב'}`
         routeLine.bindTooltip(routeTip, { sticky: true, direction: 'top', className: 'pm-tip' })
       })
+      ;(path.planningLinks || []).forEach(segment => {
+        const proposal=L.polyline(segment,{color,weight:3,opacity:.65,dashArray:'2 7',className:'planning-link'}).addTo(g)
+        proposal.bindTooltip('חיבור תכנוני לסגירת הטבעת · אינו דרך ממופה או הוראת ניווט',{sticky:true})
+      })
       w.stops.forEach((station, i) => {
         const p = placeById(station.place)
         if (!p || needsLocation(p)) return

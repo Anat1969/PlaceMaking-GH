@@ -10,12 +10,12 @@ export const NAV = [
   { page: 'plan', label: 'תכנון' },
   { page: 'city', label: 'העיר' },
   { page: 'language', label: 'שפה' },
-  { page: 'understand', label: 'להבין' },
+  { page: 'understand', label: 'מפות וידע' },
   { page: 'sources', label: 'מקורות' },
   { page: 'method', label: 'שיטה' },
   { page: 'show', label: 'מצגת' },
 ]
-const PARENT: Record<string, string> = { place: 'atlas', walk: 'walks', tour: 'walks', mapping: 'xp', walls: 'xp' }
+const PARENT: Record<string, string> = { place: 'atlas', 'route-editor': 'walks', walk: 'walks', tour: 'walks', mapping: 'xp', walls: 'xp' }
 
 export default function TopBar({ page }: { page: string }) {
   const current = PARENT[page] || page

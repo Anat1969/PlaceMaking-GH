@@ -1,3 +1,4 @@
+import VoiceAnswer from '../components/VoiceAnswer'
 import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import CityMap from '../components/CityMap'
@@ -19,7 +20,7 @@ export default function Games() {
   const [answer, setAnswer] = useState('')
   const [wrong, setWrong] = useState(false)
   const [field, setField] = useState(false)
-  const { pos } = useGeo(field)
+  const { pos, err: geoError } = useGeo(field)
   useEffect(() => { try { localStorage.setItem(KEY, JSON.stringify(g)) } catch { /* */ } }, [g])
   const r = ESCAPE.riddles[active]
   const p = placeById(r.place)!
@@ -40,7 +41,7 @@ export default function Games() {
     <div className="page">
       <span className="label">משחקים בעיר · טבעת הלב</span>
       <h1 className="page-title">עיר בריחה: {ESCAPE.title}</h1>
-      <div className="page-sub"><Lines text={ESCAPE.intro} /></div>
+      <div className="page-sub"><Lines text={ESCAPE.intro} /></div><p className="muted">התיבה היא סיפור מסגרת למשחק. אפשר לשחק כאן באופן עצמאי; אין צורך באביזר שהותקן בשטח.</p>
 
       <div className="card tx-light" style={{ padding: 20, color: '#fff' }}>
         <div className="row" style={{ justifyContent: 'space-between' }}>
@@ -71,19 +72,19 @@ export default function Games() {
                 <div className="tone tone-solution"><p>{r.reveal}</p></div>
               ) : (
                 <>
-                  <p style={{ fontSize: 16 }}><strong>{r.q}</strong></p>
+                  <p style={{ fontSize: 16 }}><strong>{r.q}</strong></p><details className="source-limits"><summary>פתיחת תיק המידע לחידה בתוך האפליקציה</summary><p>{p.body}</p><p><strong>נתון מתוך תוכן המשחק:</strong> {r.answer}</p><p className="src">{p.source.label} · זהו נתון מתוכן המשחק הקיים, לא בדיקת מקור מחודשת.</p></details>
                   <div className="row">
                     <input className="field" inputMode="numeric" value={answer} onChange={(e) => setAnswer(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && check()} aria-label="התשובה" placeholder="התשובה" style={{ width: 140 }} />
                     <button className="press btn btn-primary" onClick={check}>בדיקה</button>
                   </div>
-                  {wrong && <p style={{ color: 'var(--cut)', marginTop: 6 }}>לא בדיוק. הרמז נמצא בסיפור של התחנה: <a href={href('place', { id: r.place })}>{p.name}</a>.</p>}
+                  <VoiceAnswer key={active} onText={setAnswer} />{wrong && <p style={{ color: 'var(--cut)', marginTop: 6 }}>לא בדיוק. הרמז נמצא בסיפור של התחנה: <a href={href('place', { id: r.place })}>{p.name}</a>.</p>}
                 </>
               )}
             </div>
           </div>
           <div className="row" style={{ marginTop: 10, justifyContent: 'space-between' }}>
-            <button className="press chip" aria-pressed={field} onClick={() => setField(!field)}>{field ? 'מצב שטח: החידה נפתחת רק במקום' : 'מצב הדגמה: כל החידות פתוחות'}</button>
-            <button className="press chip" onClick={() => setG({ solved: {}, found: {} })}>משחק חדש</button>
+            <button className="press chip" aria-pressed={field} onClick={() => setField(!field)}>{field ? 'מצב שטח: אפשר לחזור למשחק מהבית' : 'משחק מתוך האפליקציה · מעבר לשטח'}</button>
+            <button className="press chip" onClick={() => setG({ solved: {}, found: {} })}>משחק חדש</button>{geoError&&<p role="status">{geoError} אפשר לחזור למשחק מתוך האפליקציה.</p>}
           </div>
         </div>
         <div className="card" style={{ padding: 0, height: 420 }}>
@@ -92,13 +93,13 @@ export default function Games() {
       </div>
 
       <div className="grid-3" style={{ marginTop: 18 }}>
-        <div className="tone tone-neutral"><h4>במציאות</h4><p>בכל תחנה שלט קטן עם טבעת וקוד QR. החידה נפתחת רק בטלפון שנמצא במקום.</p></div>
-        <div className="tone tone-neutral"><h4>מי מפעיל</h4><p>המתנ"ס, מורי מורשת ותנועות נוער. ערכה מודפסת למי שאין טלפון.</p></div>
+        <div className="tone tone-neutral"><h4>במציאות</h4><p>שילוט וקודי QR בשטח הם הצעה לפיתוח, ואינם נדרשים כדי לשחק כאן. נתוני החידה זמינים בתיק המידע.</p></div>
+        <div className="tone tone-neutral"><h4>מי מפעיל</h4><p>המשחק כאן פועל עצמאית: קוראים את תיק המידע, עונים ומקבלים משוב מיידי. ההתקדמות נשמרת במכשיר.</p></div>
         <div className="tone tone-insight"><Rich as="p">{`החידות לא נכתבות בשביל המשחק. ==כל תשובה היא עובדה מהסיפור של העיר.==`}</Rich></div>
       </div>
 
       <h2 className="section-title">ציד טבעות: לילדים בגובה העיניים</h2>
-      <p className="section-sub">טבעות צבעוניות קטנות, בגובה ילד, מוסתרות בתחנות. מוצאים, מסמנים ושואלים שאלה אחת.</p>
+      <p className="section-sub">אפשר לחקור את התחנות מתוך האפליקציה. הטמנת טבעות בשטח היא הצעה בלבד; אין להניח שהותקנו.</p>
       <div className="grid-3">
         {HUNT.map((h, i) => {
           const hp = placeById(h.place)
@@ -108,15 +109,15 @@ export default function Games() {
               <svg viewBox="0 0 54 54" width="54" height="54"><circle cx="27" cy="27" r="20" fill="none" stroke={ring.color} strokeWidth="9" strokeDasharray={g.found[i] ? 'none' : '4 6'} /></svg>
               <span>
                 <strong style={{ display: 'block' }}>{hp?.name}</strong>
-                <span style={{ fontSize: 13 }}>{h.find}</span>
-                <span className="muted" style={{ display: 'block', fontSize: 12 }}>{g.found[i] ? h.note : 'לחצו כשמצאתם'}</span>
+                <span style={{ fontSize: 13 }}>{hp?.lead}</span>
+                <span className="muted" style={{ display: 'block', fontSize: 12 }}>{g.found[i] ? h.note : 'לחצו לסימון החקירה'}</span>
               </span>
             </button>
           )
         })}
       </div>
 
-      <h2 className="section-title">עוד הפעלות</h2>
+      <h2 className="section-title">רעיונות להפעלות בשטח · טרם הופעלו כאן</h2>
       <div className="grid-3">
         {ACTIVATIONS.map((a) => (
           <div key={a.name} className="card"><strong>{a.name}</strong><p className="muted" style={{ margin: '4px 0 0' }}>{a.who} · {a.time} · {a.season}</p></div>

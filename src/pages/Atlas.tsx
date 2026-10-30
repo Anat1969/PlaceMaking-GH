@@ -72,13 +72,13 @@ export default function Atlas({ route }: { route: Route }) {
           {RINGS.map((r) => <div className="li" key={r.id}><span className="sw" style={{ background: r.color }} />{r.name} · {r.drive} · {r.order}</div>)}
           {Object.entries(LAYERS).map(([k, l]) => <div className="li lg-layer" key={k}><span className="sw" style={{ background: l.color, borderRadius: '50%' }} />{l.name}</div>)}
           <div className="li">קו צבעוני = תוואי · עיגול ממוספר = תחנה</div>
-          <div className="li">מקווקו = תוואי מוצע · חיבור חסר אינו מומצא</div>
+          <div className="li">מקווקו = תוואי מוצע · מנוקד דק = חיבור תכנוני, ללא דרך מאומתת</div>
           {walks.map((w) => <div className="li" key={w.id}><span style={{ display: 'inline-block', minWidth: 24, borderTop: `4px ${w.ring ? 'dashed' : 'solid'} ${walkColor(w)}` }} />{w.title} · {w.stops.length} תחנות</div>)}
           {store.docs.length > 0 && <div className="li"><span className="sw" style={{ background: '#B3261E' }} />תיעוד שטח: חסר, פגום, קיים</div>}
         </div>
       </div>
 
-      <aside className="atlas-side">
+      <aside className="atlas-side"><div className="row" style={{marginBottom:12}}><a className="press chip" href="#/route-editor">עריכת טבעת על המפה</a><a className="press chip" href="#/understand">מפות וידע</a></div>
         {p ? (
           <div className="rise" key={p.id}>
             <div className="crumbs"><a href={href('atlas')}>אטלס</a> / {LAYERS[p.layer].name}</div>

@@ -1,3 +1,4 @@
+import RouteEditor from './pages/RouteEditor'
 import Understand from './pages/Understand'
 import Sources from './pages/Sources'
 import TopBar from './components/TopBar'
@@ -24,6 +25,7 @@ export default function App() {
   if (page === 'show') return <Show />
   let body
   switch (page) {
+    case 'route-editor': body = <RouteEditor />; break
     case 'understand': body = <Understand />; break
     case 'sources': body = <Sources />; break
     case 'atlas': body = <Atlas route={route} />; break

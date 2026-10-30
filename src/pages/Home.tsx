@@ -1,3 +1,4 @@
+import SenseIcon from '../components/SenseIcon'
 import { useState } from 'react'
 import { motion } from 'framer-motion'
 import CityRings from '../components/CityRings'
@@ -104,7 +105,7 @@ export default function Home() {
           ))}
         </div>
         <div className="row" style={{ marginTop: 10, gap: 14 }}>
-          {SENSES.map((s) => <span key={s.id} className="sense-chip"><i className={s.texture} />{s.name}</span>)}
+          {SENSES.map((s) => <span key={s.id} className="sense-chip"><SenseIcon id={s.id} size={16}/>{s.name}</span>)}
           <a className="press btn" href={href('xp')} style={{ marginInlineStart: 'auto' }}>לכל החוויה</a>
         </div>
 

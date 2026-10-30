@@ -46,7 +46,7 @@ export default function CityRings({ active, onPick }: { active?: RingId | null; 
       </defs>
       <rect width={W} height={H} fill="url(#land)" />
       <path d={sea} fill="#0A2A3D" />
-      <path d={sea} fill="url(#waves)" />
+      
       <path d={smooth(coast, false)} fill="none" stroke="#E8D9BC" strokeWidth="3" />
 
       <text x="26" y="250" fill="#7FB8D9" fontSize="13" fontFamily="IBM Plex Mono" opacity=".8">הים התיכון</text>
@@ -72,6 +72,7 @@ export default function CityRings({ active, onPick }: { active?: RingId | null; 
               animate={{ pathLength: 1 }}
               transition={{ duration: 1.8, delay: 0.3 + i * 0.5, ease: 'easeInOut' }}
             />)}
+            {(path?.planningLinks || []).map((pts,k)=><path key={"planned"+k} d={linePath(pts)} fill="none" stroke={r.color} strokeWidth="2" strokeDasharray="2 7" opacity=".7"/>)}
             {stops.map((pt, k) => (
               <circle key={k} cx={pt[0]} cy={pt[1]} r="4.5" fill="#0E3A53" stroke={r.color} strokeWidth="2.5" />
             ))}
@@ -79,10 +80,7 @@ export default function CityRings({ active, onPick }: { active?: RingId | null; 
         )
       })}
       <text x="250" y="482" textAnchor="middle" fill="#F5EFE4" fontSize="12">תוואים למיפוי · חיבורים חסרים מפורטים באטלס</text>
-      {!reduce && (
-        <motion.circle cx={X(34.6435)} cy={Y(31.7935)} fill="none" stroke="#FFE45C" strokeWidth="1.5"
-          initial={{ r: 8, opacity: 0.8 }} animate={{ r: [8, 120], opacity: [0.8, 0] }} transition={{ duration: 4, repeat: Infinity, ease: 'easeOut' }} />
-      )}
+
     </svg>
   )
 }

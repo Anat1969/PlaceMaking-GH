@@ -1,3 +1,4 @@
+import SenseIcon from '../components/SenseIcon'
 import Rich, { Lines } from '../components/Rich'
 import { SENSES, SCALES, ACTIVATIONS } from '../data/experience'
 import { RINGS } from '../data/rings'
@@ -21,7 +22,7 @@ export default function Experience() {
         <div className="in">
           <div className="label" style={{ color: '#9CC7DF' }}>חוויית המבקר · כל החושים</div>
           <h1>לא לקרוא על העיר.<br />לחוות אותה.</h1>
-          <Lines text="לראות, לשמוע, לגעת, לנשום ולטעום. ==הצבע אומר איפה, הטקסטורה אומרת איך, וקנה המידה אומר מאיזה מרחק.==" />
+          <Lines text="לראות, לשמוע, לגעת, לנשום ולטעום. ==הצבע אומר איפה, האייקון אומר איך, וקנה המידה אומר מאיזה מרחק.==" />
           <div className="hero-credit">מצודת אשדוד ים בשקיעה · מקף־עברי, CC BY-SA 4.0, ויקישיתוף</div>
         </div>
       </section>
@@ -39,11 +40,11 @@ export default function Experience() {
         </div>
 
         <h2 className="section-title">ביניים: חמשת החושים אומרים איך</h2>
-        <p className="section-sub">לכל חוש טקסטורה קבועה. היא חוזרת בשלט, במפה ובאפליקציה.</p>
+        <p className="section-sub">לכל חוש אייקון קווי קבוע. הצבעים נשמרים לטבעות; המידע מוצג על רקע נקי.</p>
         <div className="grid-3" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 210px), 1fr))' }}>
           {SENSES.map((s) => (
             <div key={s.id} className="card" style={{ padding: 0, overflow: 'hidden' }}>
-              <div className={s.texture} style={{ height: 70 }} />
+              <div style={{height:54,display:"grid",placeItems:"center",borderBottom:"1px solid var(--rule)"}}><SenseIcon id={s.id}/></div>
               <div style={{ padding: 14 }}>
                 <span className="label">{s.verb}</span>
                 <h3 style={{ fontFamily: 'var(--serif)', fontSize: 22 }}>{s.name}</h3>
