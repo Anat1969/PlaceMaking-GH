@@ -1,176 +1,46 @@
-import { useEffect, useState, ReactNode } from 'react'
-import { AnimatePresence, motion } from 'framer-motion'
-import CityRings from '../components/CityRings'
-import RingGlyph from '../components/RingGlyph'
-import { Lines } from '../components/Rich'
-import { RINGS, RingId } from '../data/rings'
-import { PLACES, WALKS, LAYERS } from '../data/places'
-import { cityStats, profile, total } from '../lib/logic'
-import { href } from '../lib/route'
-import { SENSES } from '../data/experience'
-
-// מצגת לראש העיר: נבנית מהנתונים, כך שכל שינוי באטלס מופיע גם כאן.
-export default function Show() {
-  const [i, setI] = useState(0)
-  const stats = cityStats()
-  const worst = [...PLACES].filter((p) => p.layer === 'heritage').sort((a, b) => total(a) - total(b)).slice(0, 3)
-  const slides: { k: string; body: ReactNode }[] = [
-    {
-      k: 'פתיחה',
-      body: (
-        <div className="grid-2" style={{ alignItems: 'center' }}>
-          <div>
-            <h2>אשדוד, עיר של טבעות</h2>
-            <Lines className="big" text="70 שנה אחרי 22 המשפחות הראשונות. ==העיר כמוזיאון חי, שמספר את סיפורו תוך כדי תנועה.==" />
-          </div>
-          <CityRings />
-        </div>
-      ),
-    },
-    {
-      k: 'שלוש טבעות',
-      body: (
-        <>
-          <h2>שלוש טבעות, שלושה צרכים</h2>
-          <div className="grid-3">
-            {RINGS.map((r) => (
-              <div key={r.id} style={{ borderTop: `6px solid ${r.color}`, paddingTop: 12 }}>
-                <div style={{ fontFamily: 'var(--serif)', fontSize: 40, color: r.color, fontWeight: 700 }}>{r.name}</div>
-                <div className="big"><p><strong>{r.drive} · {r.time}</strong></p><p>{r.definition}</p></div>
-              </div>
-            ))}
-          </div>
-        </>
-      ),
-    },
-    {
-      k: 'מאגר אחד',
-      body: (
-        <>
-          <h2>{PLACES.length} מקומות, מאגר אחד</h2>
-          <div className="grid-kpi">
-            {Object.entries(LAYERS).map(([k, l]) => (
-              <div key={k} style={{ borderRight: `5px solid ${l.color}`, paddingRight: 14 }}>
-                <div className="num" style={{ fontSize: 54 }}>{PLACES.filter((p) => p.layer === k).length}</div>
-                <div className="big">{l.name}</div>
-              </div>
-            ))}
-          </div>
-          <Lines className="big" text={`ועוד **${WALKS.length} מסלולים** ו-**21 רובעים**. ==שימור, התחדשות ופלייסמייקינג, לראשונה על מפה אחת.==`} />
-        </>
-      ),
-    },
-    {
-      k: 'האבחנה',
-      body: (
-        <>
-          <h2>מה חסר לעיר</h2>
-          <div className="grid-3">
-            {RINGS.map((r) => (
-              <div key={r.id}>
-                <div className="num" style={{ fontSize: 80, color: r.color, lineHeight: 1 }}>{stats.byRing[r.id]}</div>
-                <div className="big">{r.name}: ממוצע מתוך 100</div>
-              </div>
-            ))}
-          </div>
-          <Lines className="big" text={`הפערים הגדולים: **${stats.needs.slice(0, 3).map((n) => n.c.name).join(', ')}**. ==יש סיפור ויש נוף. חסרים צל ושלט.==`} />
-        </>
-      ),
-    },
-    {
-      k: 'טביעת אצבע',
-      body: (
-        <>
-          <h2>כל אתר מקבל טביעת אצבע</h2>
-          <div className="grid-3">
-            {worst.map((p) => (
-              <div key={p.id} style={{ display: 'grid', justifyItems: 'start', gap: 8 }}>
-                <div style={{ background: '#FFFDF8', padding: 10 }}><RingGlyph p={profile(p)} size={130} labels /></div>
-                <div className="big"><p><strong>{p.name}</strong></p><p>{p.lead}</p></div>
-              </div>
-            ))}
-          </div>
-          <Lines className="big" text="קשת קצרה היא פער. ==ההמלצה נגזרת מהפער, לא מהטעם האישי.==" />
-        </>
-      ),
-    },
-    {
-      k: 'חוויה',
-      body: (
-        <div className="grid-2" style={{ alignItems: 'center' }}>
-          <div>
-            <h2>לא לקרוא על העיר. לחוות אותה.</h2>
-            <Lines className="big" text="סיור חי שמזהה את התחנה לפי מיקום, מקריא, מראה אז והיום ומקליט זיכרונות. עיר בריחה בטבעת הלב. ==הצבע אומר איפה, הטקסטורה אומרת איך.==" />
-            <div className="row" style={{ marginTop: 14 }}>{SENSES.map((x) => <span key={x.id} className="sense-chip" style={{ color: '#fff' }}><i className={x.texture} />{x.name}</span>)}</div>
-          </div>
-          <img src="/media/s07-c.jpg" alt="מרכז רובע א'" style={{ width: '100%', maxHeight: '58vh', objectFit: 'cover', boxShadow: '0 20px 50px rgba(0,0,0,.4)' }} />
-        </div>
-      ),
-    },
-    {
-      k: 'אור',
-      body: (
-        <div className="grid-2" style={{ alignItems: 'center' }}>
-          <img src="/media/s14-arches.jpg" alt="קשתות מצודת אשדוד ים" style={{ width: '100%', maxHeight: '58vh', objectFit: 'cover', filter: 'brightness(.75)', boxShadow: '0 20px 50px rgba(0,0,0,.4)' }} />
-          <div>
-            <h2>הבניין מספר את עצמו באור</h2>
-            <Lines className="big" text="מיפוי הקרנה על בית קנדה, המצודה, המגדלור ותחנת הכוח. בלי לגעת במבנה. ==פראג הקרינה 600 שנה על השעון שלה. אשדוד תקרין 70 שנה על בית קנדה.==" />
-          </div>
-        </div>
-      ),
-    },
-    {
-      k: 'הפיילוט',
-      body: (
-        <>
-          <h2>פיילוט 70: טבעת הלב</h2>
-          <Lines className="big" text="רובעים א', ב', ד' ו-ה'. 5 עד 8 מוקדי עוגן: ספסל, צל, שלט ותחנת סיפור. ספטמבר 2026: מיפוי. מאי 2027: השקה. **80,000 ₪**, ועוד כ-**70,000 ₪** מ-MUNI100 לוותיקים. ==פחות מ-2% מתקציב שבעת המיזמים, ומוכיח את השיטה לפני ההשקעה.==" />
-        </>
-      ),
-    },
-    {
-      k: 'הבקשה',
-      body: (
-        <>
-          <h2>הבקשה: אישור הפיילוט</h2>
-          <Lines className="big" text="אישור תקציב הפיילוט בטבעת הלב. מינוי צוות שטח שמתעד באטלס מהשבוע הבא. השקה בשבוע ה-70. ==כל ספסל שיוצב יופיע כאן, מדוד ומתוזמן.==" />
-          <div className="row" style={{ marginTop: 20 }}>
-            <a className="press btn" href={href('walk', { id: 'ring-lev' })} style={{ background: 'transparent', color: '#fff' }}>לטבעת הלב</a>
-            <a className="press btn" href={href('atlas')} style={{ background: 'transparent', color: '#fff' }}>לאטלס</a>
-          </div>
-        </>
-      ),
-    },
-  ]
-  const n = slides.length
-  useEffect(() => {
-    const on = (e: KeyboardEvent) => {
-      if (e.key === 'ArrowLeft' || e.key === ' ') setI((x) => Math.min(n - 1, x + 1))
-      if (e.key === 'ArrowRight') setI((x) => Math.max(0, x - 1))
-      if (e.key === 'Escape') location.hash = '/'
-    }
-    addEventListener('keydown', on)
-    return () => removeEventListener('keydown', on)
-  }, [n])
-  return (
-    <div className="show" role="region" aria-label="מצגת">
-      <div className="show-top">
-        <span>אדריכלות העיר אשדוד · שלוש טבעות</span>
-        <span><bdi className="num">{i + 1}/{n}</bdi> · {slides[i].k}</span>
-        <a className="press chip" href="#/" style={{ background: 'transparent', color: '#fff' }}>יציאה</a>
-      </div>
-      <AnimatePresence mode="wait">
-        <motion.div key={i} className="show-slide" initial={{ opacity: 0, x: -30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 30 }} transition={{ duration: 0.35 }}>
-          {slides[i].body}
-        </motion.div>
-      </AnimatePresence>
-      <div className="show-nav">
-        <button className="press btn" onClick={() => setI(Math.max(0, i - 1))} disabled={i === 0} style={{ background: 'transparent', color: '#fff' }}>הקודם</button>
-        <div className="show-dots">{slides.map((s, k) => <button key={k} aria-label={s.k} aria-current={k === i} onClick={() => setI(k)} />)}</div>
-        <button className="press btn" onClick={() => setI(Math.min(n - 1, i + 1))} disabled={i === n - 1} style={{ background: 'var(--marker)', color: 'var(--ink)', borderColor: 'var(--marker)' }}>הבא</button>
-      </div>
-    </div>
-  )
+import {useEffect,useRef,useState} from 'react'
+import {MAYOR_DECK,MayorSlide} from '../data/mayor-deck'
+import {PATHS} from '../data/paths'
+import {WALKS,placeById} from '../data/places'
+import {RINGS,RingId} from '../data/rings'
+import {CONCEPTS} from '../data/concepts'
+import './show.css'
+const KEY='pm-mayor-deck-v2'
+function read():MayorSlide[]{try{const d=JSON.parse(localStorage.getItem(KEY)||'null');return MAYOR_DECK.map(s=>({...s,...(d?.find((x:MayorSlide)=>x.id===s.id)||{})}))}catch{return MAYOR_DECK}}
+function RingMark({active}:{active?:RingId}){return <svg viewBox="0 0 100 100" aria-hidden="true">{RINGS.map((r,i)=><circle key={r.id} cx="50" cy="50" r={[42,29,16][i]} fill="none" stroke={r.color} strokeWidth="5" opacity={!active||active===r.id?1:.16}/>)}</svg>}
+function RouteFigure({focus}:{focus?:RingId}){
+ const ids=focus?[focus]:RINGS.map(r=>r.id);const points=ids.flatMap(id=>PATHS['ring-'+id]?.line||[]);const lngs=points.map(p=>p[1]),lats=points.map(p=>p[0]);const w=Math.min(...lngs)-.003,e=Math.max(...lngs)+.003,n=Math.max(...lats)+.003,s=Math.min(...lats)-.003;const scale=Math.min(580/(e-w),450/(n-s));const x=(lng:number)=>30+(lng-w)*scale,y=(lat:number)=>25+(n-lat)*scale;
+ return <figure className="mayor-route"><svg viewBox="0 0 640 510" role="img" aria-label={focus?'תוואי טבעת '+RINGS.find(r=>r.id===focus)?.name:'תוואי שלוש הטבעות באשדוד'}><rect width="640" height="510" fill="#f0f3f5"/>{ids.map(id=>{const p=PATHS['ring-'+id],r=RINGS.find(r=>r.id===id)!,walk=WALKS.find(w=>w.ring===id);return <g key={id}>{(p.segments||[p.line]).map((line,k)=><polyline key={k} points={line.map(([la,ln])=>`${x(ln)},${y(la)}`).join(' ')} fill="none" stroke={r.color} strokeWidth={focus?5:3.5} strokeLinejoin="round"/>)}{p.planningLinks?.map((line,k)=><polyline key={'p'+k} points={line.map(([la,ln])=>`${x(ln)},${y(la)}`).join(' ')} fill="none" stroke={r.color} strokeWidth="2" strokeDasharray="3 7"/>)}{walk?.stops.map((st,i)=>{const p=placeById(st.place);if(!p||['a1','a3'].includes(p.id))return;return <g key={st.place}><circle cx={x(p.lng)} cy={y(p.lat)} r={focus?9:5} fill="white" stroke={r.color} strokeWidth="2"/>{focus&&<text x={x(p.lng)} y={y(p.lat)+3.5} textAnchor="middle" fontSize="9" fill="#14202b">{i+1}</text>}</g>})}</g>})}<text x="24" y="490" fill="#52616d" fontSize="12">צפון ↑ · תרשים תוואים גאוגרפי · ללא מפת רקע</text></svg><figcaption>מקור: תוואי האטלס · קו מלא: ניתוב מוצע · מנוקד: חיבור תכנוני שטרם אומת כדרך.</figcaption></figure>
 }
-
-export type { RingId }
+function Photo({file,caption}:{file:string;caption:string}){const [failed,setFailed]=useState(false);return <figure className="mayor-photo">{failed?<div className="mayor-photo-fallback">אשדוד · {caption}</div>:<img src={import.meta.env.BASE_URL+'media/'+file} alt={caption} onError={()=>setFailed(true)}/>}<figcaption>{caption} · {file==='fortress-sunset.jpg'?<a href="https://commons.wikimedia.org/wiki/File:Ashdod_Yam_Fortress_at_sunset,_23_September_2025_06.jpg" target="_blank" rel="noreferrer">מקף־עברי · CC BY-SA 4.0 · ויקישיתוף · 2025</a>:'תיק התיעוד באטלס · מועד הצילום לא אומת'}</figcaption></figure>}
+function Flow({items}:{items:[string,string][]}){return <div className="mayor-flow">{items.map(([title,body],i)=><div key={title}><span className="mayor-step">{String(i+1).padStart(2,'0')}</span><h3>{title}</h3><p>{body}</p></div>)}</div>}
+function Visual({id}:{id:string}){
+ switch(id){
+ case 'opening':return <div className="mayor-cover-art"><Photo file="fortress-sunset.jpg" caption="מצודת אשדוד ים · מפגש בין אנשים, מורשת ונוף"/><div className="mayor-cover-mark"><RingMark/></div><div className="mayor-photo-label">הנוף. האנשים. הסיפור.</div></div>
+ case 'opportunity':return <><div className="mayor-equation">{['נוף','מורשת','תרבות','קהילה'].map((t,i)=><div key={t}><span className="mayor-step">0{i+1}</span><strong>{t}</strong></div>)}</div><div className="mayor-connection"><svg viewBox="0 0 600 100" aria-hidden="true"><path d="M20 50H580" stroke="#14202b" strokeWidth="2"/>{[30,210,390,570].map(x=><circle key={x} cx={x} cy="50" r="10" fill="white" stroke="#14202b" strokeWidth="2"/>)}</svg><strong>דרך + תחנות + תוכן + נוחות</strong></div><p className="mayor-takeaway">לאסוף את הידע. לחבר את המרחב. להפעיל חוויה.</p></>
+ case 'concept':return <div className="mayor-concepts">{CONCEPTS.map(c=><div key={c.ring} style={{borderTopColor:RINGS.find(r=>r.id===c.ring)!.color}}><RingMark active={c.ring}/><span>{c.mind}</span><h3>{c.impulse}</h3><p>{c.action}</p><small>{c.concepts.join(' · ')}</small></div>)}</div>
+ case 'geography':return <div className="mayor-map-layout"><RouteFigure/><div className="mayor-map-key">{[...RINGS].reverse().map(r=><div key={r.id}><i style={{background:r.color}}/><h3>{r.name}</h3><p>{r.definition}</p></div>)}<small>הטבעות הן לולאות במרחב, לא מעגלים גאומטריים. מיקומי שני עוגנים עתידיים טרם אומתו.</small></div></div>
+ case 'body':return <div className="mayor-pair"><Photo file="s14-arches.jpg" caption="מצודת אשדוד ים · החיבור בין טבע למורשת"/><div className="mayor-stack">{[['ים ושפך','לקרוא את המפגש בין העיר למים'],['נחל ודיונות','לגלות תהליכים, צמחייה ובעלי חיים'],['רצף סגור','הליכה, ריצה ורכיבה עם מוקדי שהייה']].map(([a,b])=><div key={a}><h3>{a}</h3><p>{b}</p></div>)}<small>השלמת התוואי מחייבת אימות חיבורים, מעבר ובטיחות.</small></div></div>
+ case 'heart':return <div className="mayor-pair"><RouteFigure focus="lev"/><div className="mayor-stack"><div className="mayor-center-sequence">א׳ ← ב׳ ← ה׳ ← ד׳ ← א׳</div><Photo file="s07-c.jpg" caption="מרכז רובע א׳"/><p>מרכז מסחרי כמרחב קהילתי: מפגש, זיכרון, מסחר וחיי יום־יום.</p><small>התוואי מבוסס רשת רחובות; יש לבדוק נגישות ומצב שטח. עוגן רובע ה׳: אתר המרכז לשעבר.</small></div></div>
+ case 'mind':return <div className="mayor-pair"><RouteFigure focus="ruach"/><div className="mayor-stack"><h3>מוסדות שהופכים לרצף עירוני</h3><p>העירייה · יד לבנים · מונארט · המשכן · סימול</p><div className="mayor-proposal"><span>להשלמת המיפוי</span><p>הספרייה החדשה והמרכז האנדלוסי העתידי</p></div><p>בין התחנות: אמנות, שאלות, יצירה ותוכן שמזמינים לעצור.</p></div></div>
+ case 'knowledge':return <><div className="mayor-knowledge-grid">{[['גובה ומים','איך הקרקע מכוונת זרימה?','M5 55 35 30 60 40 90 10'],['חום וצל','איפה ומתי נוח לשהות?','M8 35H92M50 8V62'],['רוח ובריזה','איך נפתחים לים בלי להיחשף?','M5 20H65Q95 20 80 5M5 40H85M5 60H55'],['צמחייה ורצף','מה מחבר בין הכתמים הירוקים?','M15 35H85M30 35V15M70 35V55']].map(([a,b,path])=><div key={a}><svg viewBox="0 0 100 70" aria-hidden="true"><path d={path} fill="none" stroke="currentColor" strokeWidth="2"/></svg><h3>{a}</h3><p>{b}</p></div>)}</div><div className="mayor-live-link"><span>התרשימים מסבירים את השאלות; הנתונים והמפות נמצאים במערכת.</span><a href="#/understand" target="_blank" rel="noreferrer">פתיחת המפות החיות ↗</a></div></>
+ case 'experience':return <><Flow items={[["בוחרים מקום","מפה, צילום וסיפור מקומי"],["פותחים שאלה","משחק ידע שפועל באפליקציה"],["מבינים את ההקשר","טבע, אנשים ושיקולי תכנון"],["מוסיפים קול","כתיבה, הקלטה ותמלול"]]}/><div className="mayor-live-link"><span>אפשר להתנסות עצמאית גם מהבית. תצפיות אישיות נשמרות במכשיר.</span><a href="#/games" target="_blank" rel="noreferrer">פתיחת המשחק ↗</a></div></>
+ case 'pilot':return <div className="mayor-pilot-grid"><div><span className="mayor-step">01 / הדרך</span><h3>רציפות לפני קישוט</h3><p>תוואי, חציות, נגישות, צל והתמצאות.</p></div><div><span className="mayor-step">02 / התחנה</span><h3>מקום לעצור ולהיפגש</h3><p>ישיבה, שהייה, נוחות וסיפור מקומי.</p></div><div><span className="mayor-step">03 / התוכן</span><h3>העיר בקולות תושביה</h3><p>תיעוד, תמונות, שאלות וחוויות עצמאיות.</p></div><div className="mayor-pilot-outcome"><RingMark active="lev"/><h3>תוצר לאישור</h3><p>תוואי מאומת · סל התערבויות · אומדן · תוכנית הפעלה</p><small>היקף, תקציב ולוח זמנים ייקבעו לאחר בדיקה ותמחור.</small></div></div>
+ case 'delivery':return <><Flow items={[["ממפים ומאמתים","תוואי, עוגנים, חסמים ומצב קיים"],["מתכננים ומתמחרים","חלופות, תעדוף ואחריות"],["מפעילים ומודדים","שימוש, נוחות, הבנה ותחזוקה"],["מחליטים על הרחבה","על בסיס תוצאות וקו בסיס"]]}/><div className="mayor-measures"><span>מדדים מוצעים</span><strong>רציפות ונגישות</strong><strong>נוחות ושהייה</strong><strong>שימוש ומעורבות</strong><strong>יכולת תחזוקה</strong></div></>
+ default:return <div className="mayor-decision-grid">{[['01','אישור עקרוני','לקדם פיילוט ממוקד בטבעת הלב.'],['02','מסגרת עבודה','לקבוע גורם מתכלל ותיאום בין האגפים.'],['03','החלטת המשך','להציג תוואי מאומת, חלופות ואומדן לאישור.']].map(([n,a,b])=><div key={n}><span className="mayor-step">{n}</span><h3>{a}</h3><p>{b}</p></div>)}<div className="mayor-closing">עיר שאפשר להכיר.<br/>עיר שרוצים להשתייך אליה.</div></div>
+ }
+}
+export default function Show(){
+ const [slides,setSlides]=useState<MayorSlide[]>(read),[index,setIndex]=useState(0),[overview,setOverview]=useState(false),[notes,setNotes]=useState(false),[editing,setEditing]=useState(false),[message,setMessage]=useState('')
+ const root=useRef<HTMLDivElement>(null),slide=slides[index]
+ const next=(delta:number)=>setIndex(i=>Math.max(0,Math.min(slides.length-1,i+delta)))
+ useEffect(()=>{const key=(e:KeyboardEvent)=>{if((e.target as HTMLElement)?.closest('input,textarea,select,button,a'))return;if(['ArrowLeft','PageDown',' '].includes(e.key)){e.preventDefault();next(1)}if(['ArrowRight','PageUp'].includes(e.key)){e.preventDefault();next(-1)}if(e.key==='Home')setIndex(0);if(e.key==='End')setIndex(slides.length-1);if(e.key==='Escape'){setOverview(false);setNotes(false);setEditing(false)}};addEventListener('keydown',key);return()=>removeEventListener('keydown',key)},[slides.length])
+ const change=(field:keyof MayorSlide,value:string)=>{const updated=slides.map((s,i)=>i===index?{...s,[field]:value}:s);setSlides(updated);try{localStorage.setItem(KEY,JSON.stringify(updated));setMessage('נשמר במכשיר זה בלבד')}catch{setMessage('השמירה נכשלה; ייצאו עותק לפני יציאה')}}
+ const exportDeck=()=>{const u=URL.createObjectURL(new Blob([JSON.stringify(slides,null,2)],{type:'application/json'}));const a=document.createElement('a');a.href=u;a.download='ashdod-mayor-presentation.json';a.click();setTimeout(()=>URL.revokeObjectURL(u),1000)}
+ return <div className={'mayor-deck '+(slide.id==='opening'?'mayor-is-cover':'')} ref={root} dir="rtl"><header className="mayor-toolbar"><a href="#/">אדריכלות העיר אשדוד</a><span>מצגת לראש העיר · הצעה לדיון</span><div><button onClick={()=>setOverview(v=>!v)} aria-expanded={overview}>כל השקופיות</button><button onClick={()=>setNotes(v=>!v)} aria-pressed={notes}>הערות דוברת</button><button onClick={()=>setEditing(v=>!v)} aria-pressed={editing}>עריכה</button><button onClick={()=>{root.current?.requestFullscreen?.().catch(()=>setMessage('אפשר להציג במסך מלא באמצעות F11'))}}>מסך מלא</button><button onClick={()=>window.print()}>הדפסה / PDF</button><a href="#/">יציאה</a></div></header>
+ {overview&&<nav className="mayor-overview" aria-label="כל השקופיות">{slides.map((s,i)=><button key={s.id} aria-current={index===i?'step':undefined} onClick={()=>{setIndex(i);setOverview(false)}}><span>{String(i+1).padStart(2,'0')}</span><strong>{s.title.replace('\n',' ')}</strong><small>{s.chapter}</small></button>)}</nav>}
+ <main className="mayor-stage" key={slide.id}><div className="mayor-editorial"><span className="mayor-eyebrow">{slide.eyebrow}</span><h1>{slide.title.split('\n').map((line,i)=><span key={i}>{line}</span>)}</h1><p className="mayor-lead">{slide.lead}</p>{slide.id==='opening'&&<div className="mayor-author">ענת דוד שטיבלמן · אדריכלית העיר אשדוד<br/><small>תוכנית אב לפלייסמייקינג · חוויית התושב והמבקר</small></div>}</div><div className="mayor-visual"><Visual id={slide.id}/></div></main>
+ {(notes||editing)&&<aside className="mayor-notes">{notes&&<><strong>הערות לדוברת · אינן מופיעות בהדפסה</strong><p>{slide.notes}</p></>}{editing&&<><strong>עריכת התוכן בשקופית · שמירה אישית במכשיר</strong>{(['eyebrow','title','lead','notes'] as const).map((key,i)=><label key={key}>{['כותרת משנה','כותרת ראשית','המסר המרכזי','הערות לדוברת'][i]}<textarea aria-label={["כותרת משנה","כותרת ראשית","המסר המרכזי","הערות לדוברת"][i]} value={slide[key]} onChange={e=>change(key,e.target.value)} rows={key==='notes'?3:2}/></label>)}<button onClick={exportDeck}>ייצוא עותק לעריכה והעברה</button><p role="status">{message}</p></>}</aside>}
+ <footer className="mayor-controls"><div><button disabled={index===0} onClick={()=>next(-1)}>→ הקודם</button><button disabled={index===slides.length-1} onClick={()=>next(1)}>הבא ←</button></div><span>{slide.chapter}</span><div><span className="mayor-counter">{String(index+1).padStart(2,'0')} <small>/ {slides.length}</small></span><div className="mayor-progress"><i style={{width:((index+1)/slides.length*100)+'%'}}/></div></div></footer>
+ <div className="mayor-print">{slides.map((s,i)=><section key={s.id}><header>אדריכלות העיר אשדוד · הצעה לדיון <span>{i+1} / {slides.length}</span></header><span className="mayor-eyebrow">{s.eyebrow}</span><h1>{s.title.replace('\n',' ')}</h1><p className="mayor-lead">{s.lead}</p><Visual id={s.id}/><footer>ענת דוד שטיבלמן · אדריכלית העיר אשדוד</footer></section>)}</div></div>
+}
