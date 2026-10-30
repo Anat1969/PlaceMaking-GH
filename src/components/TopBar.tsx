@@ -10,6 +10,7 @@ export const NAV = [
   { page: 'plan', label: 'תכנון' },
   { page: 'city', label: 'העיר' },
   { page: 'language', label: 'שפה' },
+  { page: 'sources', label: 'מקורות' },
   { page: 'method', label: 'שיטה' },
   { page: 'show', label: 'מצגת' },
 ]
@@ -29,7 +30,7 @@ export default function TopBar({ page }: { page: string }) {
             <a key={n.page} className="tab" href={href(n.page)} aria-current={current === n.page ? 'page' : undefined}>{n.label}</a>
           ))}
         </nav>
-        {createElement('ai-menu', { brand: 'ashdod', chat: 'https://claude.ai/code/session_018qeN17iFt8BF9pUKUMW2cU' })}
+        {createElement('ai-menu', { brand: 'ashdod' })}
       </div>
     </header>
   )

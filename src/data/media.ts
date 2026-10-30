@@ -1,6 +1,6 @@
 // תמונות לכל מקום. מקור: אפליקציית השימור (קבצים ציבוריים בריפו SHIMUR-GH ובדלי shimur-site-images).
 // לא מתוארכות: חלק מהצילומים "הישנים" מעובדים בגוון ספיה, ולכן הכיתוב הוא "מתיק התיעוד".
-export type Photo = { src: string; caption: string; credit: string; page?: string; kind?: 'old' | 'now' | 'archive' | 'night' }
+export type Photo = { src: string; caption: string; credit: string; page?: string; kind?: 'old' | 'now' | 'archive' | 'night' | 'future'; date?: string }
 
 const B = 'https://cbhexpybdggwzyakgagd.supabase.co/storage/v1/object/public/shimur-site-images/'
 const SH = 'תיק התיעוד, רשימת שימור ותיק תיעוד אשדוד'

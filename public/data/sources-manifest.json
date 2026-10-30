@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "received": "2026-10-30",
+  "hashes": {
+    "streets": "9d0778a9f31db0ccf0e2414d2b393559b9c01d031fb91034800e138793037ac5",
+    "policy": "68d939084bd4d77ae58985c18c6d7baa12f28cea187907eabf11353a6d6818f4"
+  },
+  "streets": {
+    "source_name": "rehovot.zip",
+    "features": 2991,
+    "source_fields": [
+      "st_cod",
+      "רובע",
+      "מידרג",
+      "executing",
+      "שם_רח",
+      "סוג_ר",
+      "אופי_",
+      "בחירה",
+      "רובע_",
+      "year_of_ex",
+      "add_a_path",
+      "add_a_pa_1",
+      "adding_a_r",
+      "show"
+    ],
+    "source_crs": "EPSG:2039",
+    "target_crs": "EPSG:4326",
+    "missing_names": 286,
+    "invalid_parts": [],
+    "source_date": null,
+    "note": "רחובות מתוך הקובץ שסופק. תאריך עדכון ומשמעות שדות הקוד לא נמסרו. אינו רשת ניווט מאומתת."
+  },
+  "policy": {
+    "source_name": "מסמך מדיניות תכנונית ספטמבר 2026 - מסמך עבודה (1).docx",
+    "status": "טיוטת עבודה",
+    "date_label": "ספטמבר 2026",
+    "blocks": 400,
+    "tables": 8,
+    "images": 29
+  }
+}

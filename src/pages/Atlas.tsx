@@ -1,5 +1,7 @@
 import { useMemo, useState, useCallback } from 'react'
 import CityMap from '../components/CityMap'
+import PlaceKnowledge from '../components/PlaceKnowledge'
+import { SYSTEMS, SystemId, proposedSystems, UNLOCATED, needsLocation } from '../data/identity'
 import RingGlyph from '../components/RingGlyph'
 import { PLACES, LAYERS, Layer, WALKS, placeById } from '../data/places'
 import { RINGS, RingId, ELEMENTS } from '../data/rings'
@@ -23,6 +25,8 @@ export default function Atlas({ route }: { route: Route }) {
   const store = useStore()
   const sel = route.params.place
   const [layers, setLayers] = useState<Layer[]>(route.params.layer ? [route.params.layer as Layer] : (Object.keys(LAYERS) as Layer[]))
+  const [search, setSearch] = useState('')
+  const [system, setSystem] = useState<SystemId | 'all'>('all')
   const [ring, setRing] = useState<RingId | 'all'>('all')
   const [step, setStep] = useState(6)
   const [walk, setWalk] = useState<string>('rings')
@@ -32,8 +36,8 @@ export default function Atlas({ route }: { route: Route }) {
   const year = STEPS[step].y
 
   const places = useMemo(
-    () => PLACES.filter((p) => layers.includes(p.layer) && (ring === 'all' || p.ring === ring) && p.era <= year),
-    [layers, ring, year, store.survey],
+    () => PLACES.filter((p) => layers.includes(p.layer) && (ring === 'all' || p.ring === ring) && p.era <= year && (system === 'all' || proposedSystems(p).includes(system)) && `${p.name} ${p.area} ${p.body}`.includes(search.trim())),
+    [layers, ring, year, store.survey, search, system],
   )
   const walks = useMemo(() => (walk === 'none' ? [] : walk === 'rings' ? WALKS.filter((w) => w.ring) : WALKS.filter((w) => w.id === walk)), [walk])
   const select = useCallback((id: string) => go('atlas', { place: id }), [])
@@ -51,7 +55,7 @@ export default function Atlas({ route }: { route: Route }) {
   return (
     <div className="atlas">
       <div className="atlas-map">
-        <CityMap places={places} selected={sel} onSelect={select} walks={walks} docs={store.docs} onMapClick={onMapClick} />
+        <CityMap streetControl places={places} selected={sel} onSelect={select} walks={walks} docs={store.docs} onMapClick={onMapClick} />
         <div className="timebar">
           <span className="tlabel label" style={{ margin: 0 }}>ציר הזמן</span>
           <input type="range" min={0} max={STEPS.length - 1} value={step} onChange={(e) => setStep(+e.target.value)} aria-label="ציר זמן" aria-valuetext={STEPS[step].t} />
@@ -62,9 +66,11 @@ export default function Atlas({ route }: { route: Route }) {
         </div>
         <div className="legend">
           <h4>מקרא</h4>
-          <div className="li"><svg width="22" height="22" viewBox="0 0 100 100">{RINGS.map((r, i) => <circle key={r.id} cx="50" cy="50" r={[42, 30, 18][i]} fill="none" stroke={r.color} strokeWidth="11" />)}</svg><span>כל סמן: שלוש טבעות. קשת קצרה = פער</span></div>
+          <div className="li"><svg width="22" height="22" viewBox="0 0 100 100">{RINGS.map((r, i) => <circle key={r.id} cx="50" cy="50" r={[42, 30, 18][i]} fill="none" stroke={r.color} strokeWidth="11" />)}</svg><span>אותו סמל; טבעת מודגשת = שיוך ראשי</span></div>
           {RINGS.map((r) => <div className="li" key={r.id}><span className="sw" style={{ background: r.color }} />{r.name} · {r.drive} · {r.order}</div>)}
           {Object.entries(LAYERS).map(([k, l]) => <div className="li lg-layer" key={k}><span className="sw" style={{ background: l.color, borderRadius: '50%' }} />{l.name}</div>)}
+          <div className="li">קו מקווקו: ניתוב מורשת מחושב, ללא אימות שטח</div>
+          <div className="li">תוואי הטבעות בבירור ואינו מוצג כמסלול</div>
           {store.docs.length > 0 && <div className="li"><span className="sw" style={{ background: '#B3261E' }} />תיעוד שטח: חסר, פגום, קיים</div>}
         </div>
       </div>
@@ -81,6 +87,9 @@ export default function Atlas({ route }: { route: Route }) {
               </div>
             </div>
             <p style={{ marginTop: 12 }}><strong>{p.lead}</strong></p>
+            {needsLocation(p) && <p className="tone tone-problem">המיקום בבירור; הנקודה אינה מוצגת במפה.</p>}
+            <PlaceKnowledge p={p} key={p.id} />
+            <span className="label" style={{ marginTop: 14 }}>מדדי איכות · הערכת פתיחה או סקר, בנפרד מהשיוך לטבעת</span>
             <div className="grid-3" style={{ gridTemplateColumns: 'repeat(3, minmax(0,1fr))', gap: 6, margin: '10px 0' }}>
               {RINGS.map((r) => (
                 <div key={r.id} style={{ borderTop: `3px solid ${r.color}`, padding: '6px 4px', background: r.wash }}>
@@ -101,9 +110,14 @@ export default function Atlas({ route }: { route: Route }) {
         ) : (
           <>
             <h1 className="page-title" style={{ fontSize: 26 }}>אטלס העיר</h1>
-            <p className="muted" style={{ marginBottom: 12 }}>{places.length} מקומות בשנת {year < 0 ? 'העת העתיקה' : year}. גררו את ציר הזמן כדי לראות את העיר צומחת.</p>
+            <p className="muted" style={{ marginBottom: 12 }}>{places.length} מקומות בשנת {year < 0 ? 'העת העתיקה' : year}. ציר הזמן הוא קריאה מתוך המאגר; שנות תכנון ותקופות משוערות אינן מועדי ביצוע מאושרים.</p>
 
-            <span className="label">שכבות</span>
+            <label className="label" htmlFor="atlas-search">חיפוש בעיר</label>
+            <input id="atlas-search" className="field" style={{ width: '100%', marginBottom: 10 }} value={search} onChange={(e) => setSearch(e.target.value)} placeholder="שם מקום, רובע או סיפור" />
+            <label className="label" htmlFor="atlas-system">מערכות זהות · שיוך מוצע</label>
+            <select id="atlas-system" className="field" style={{ width: '100%', marginBottom: 10 }} value={system} onChange={(e) => setSystem(e.target.value as SystemId | 'all')}><option value="all">כל המערכות</option>{Object.entries(SYSTEMS).map(([id, name]) => <option key={id} value={id}>{name}</option>)}</select>
+            <details className="knowledge-queue"><summary>נושאים לבירור מיקום ותוואי ({UNLOCATED.length})</summary><p>מקור: הנחיית ענת, 30.10.2026. אחראי ומועד השלמה טרם נקבעו.</p>{UNLOCATED.map((item) => <p key={item.id}><strong>{item.name}</strong><br />{item.task}</p>)}</details>
+            <span className="label">שכבות ארגון המאגר</span>
             <div className="row" style={{ marginBottom: 10 }}>
               {(Object.keys(LAYERS) as Layer[]).map((l) => (
                 <button key={l} className="press chip" aria-pressed={layers.includes(l)} onClick={() => toggle(l)}>{LAYERS[l].name}</button>
@@ -116,7 +130,7 @@ export default function Atlas({ route }: { route: Route }) {
             </div>
             <span className="label">מסלול על המפה</span>
             <select className="field" style={{ width: '100%', marginBottom: 10 }} value={walk} onChange={(e) => setWalk(e.target.value)} aria-label="מסלול על המפה">
-              <option value="rings">שלוש הטבעות</option>
+              <option value="rings">שלוש הטבעות · תוואים בבירור</option>
               <option value="none">בלי מסלול</option>
               {WALKS.map((w) => <option key={w.id} value={w.id}>{w.title}</option>)}
             </select>
@@ -140,7 +154,8 @@ export default function Atlas({ route }: { route: Route }) {
 
             <span className="label">לפי סדר עדיפות: הנמוך ביותר קודם</span>
             <div style={{ display: 'grid', gap: 6 }}>
-              {list.slice(0, 40).map((x) => (
+              {list.length === 0 && <p role="status">לא נמצאו מקומות. שנו את החיפוש, התקופה או הסינון.</p>}
+              {list.map((x) => (
                 <a key={x.id} className="card card-link" href={href('atlas', { place: x.id })} style={{ padding: 8, display: 'grid', gridTemplateColumns: '40px minmax(0,1fr) auto', gap: 10, alignItems: 'center' }}>
                   <RingGlyph p={profile(x)} size={40} stroke={9} />
                   <span style={{ minWidth: 0 }}>

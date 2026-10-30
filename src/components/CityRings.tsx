@@ -92,6 +92,7 @@ export default function CityRings({ active, onPick }: { active?: RingId | null; 
           </g>
         )
       })}
+      <text x="250" y="482" textAnchor="middle" fill="#F5EFE4" fontSize="12">תרשים רעיוני · אינו תוואי ניווט</text>
       {!reduce && (
         <motion.circle cx={X(34.6435)} cy={Y(31.7935)} fill="none" stroke="#FFE45C" strokeWidth="1.5"
           initial={{ r: 8, opacity: 0.8 }} animate={{ r: [8, 120], opacity: [0.8, 0] }} transition={{ duration: 4, repeat: Infinity, ease: 'easeOut' }} />

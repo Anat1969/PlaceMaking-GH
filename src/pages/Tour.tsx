@@ -48,7 +48,7 @@ export default function Tour({ id }: { id: string }) {
   const [arrived, setArrived] = useState<string | null>(null)
   const { pos, err } = useGeo(gps)
   const s = stops[i]
-  const path = PATHS[w.id]
+  const path = w.ring ? undefined : PATHS[w.id]
 
   // הטלפון מזהה את התחנה: כשמתקרבים לפחות מ-70 מ', התחנה נפתחת
   const nearest = useMemo(() => {
@@ -89,6 +89,7 @@ export default function Tour({ id }: { id: string }) {
       {arrived && <div className="arrive" role="status">הגעתם: {arrived}</div>}
       <aside className="tour-side">
         <div style={{ padding: '14px 16px 6px', borderTop: `5px solid ${ring ? ring.color : 'var(--sea)'}` }}>
+          <p className="muted">{w.ring ? 'תוואי הטבעת בבירור. התוכן פתוח לעיון; אינו הנחיית ניווט.' : 'ניתוב מחושב, ללא אימות שטח ונגישות.'}</p>
           <div className="crumbs"><a href={href('walks')}>מסלולים</a> / {w.title}</div>
           <div className="row" style={{ justifyContent: 'space-between' }}>
             <span className="label" style={{ margin: 0 }}>תחנה {i + 1} מתוך {stops.length}{path ? ` · שביל של ${(path.meters / 1000).toFixed(1)} ק"מ` : ''}</span>
