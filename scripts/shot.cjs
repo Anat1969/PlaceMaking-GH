@@ -8,7 +8,7 @@ const pages = ['', 'atlas', 'atlas?place=h5', 'place?id=h5', 'walks', 'walk?id=r
   const errors = []
   for (const [name, vp] of [['desk', { width: 1366, height: 860 }], ['mob', { width: 390, height: 844 }]]) {
     const ctx = await b.newContext({ viewport: vp, locale: 'he-IL' })
-    await ctx.route('**/ai-menu.js', (r) => r.fulfill({ path: path.join(__dirname, 'ai-menu.local.js'), contentType: 'text/javascript' }))
+    if (!process.env.LIVE) await ctx.route('**/ai-menu.js', (r) => r.fulfill({ path: path.join(__dirname, 'ai-menu.local.js'), contentType: 'text/javascript' }))
     const p = await ctx.newPage()
     p.on('pageerror', (e) => errors.push(`${name} pageerror: ${e.message}`))
     p.on('console', (m) => m.type() === 'error' && !/tile|cartocdn|favicon|Failed to load resource/.test(m.text()) && errors.push(`${name} console: ${m.text()}`))
