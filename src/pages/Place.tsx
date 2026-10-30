@@ -5,11 +5,17 @@ import { placeById, LAYERS, WALKS, PLACES } from '../data/places'
 import { CRITERIA, RINGS } from '../data/rings'
 import { profile, recommend, scoresOf, surveyed, update, useStore, uid, QUARTERS } from '../lib/logic'
 import { href } from '../lib/route'
+import { useState } from 'react'
+import { StopFilm, ThenNow, Strip } from '../components/Media'
+import { photosOf, thenNow } from '../data/media'
+import { speak, hush, canSpeak } from '../lib/senses'
+import { STAGES } from '../data/experience'
 
 const dist = (a: { lat: number; lng: number }, b: { lat: number; lng: number }) => Math.hypot((a.lat - b.lat) * 111, (a.lng - b.lng) * 94.6)
 
 export default function PlacePage({ id }: { id: string }) {
   const store = useStore()
+  const [reading, setReading] = useState(false)
   const p = placeById(id)
   if (!p) return <div className="page"><div className="tone tone-problem"><h4>המקום לא נמצא</h4><p>הקישור ישן או שגוי. חזרו <a href={href('atlas')}>לאטלס</a>.</p></div></div>
   const pr = profile(p)
@@ -21,8 +27,22 @@ export default function PlacePage({ id }: { id: string }) {
   const setScore = (c: string, v: number) => update((st) => ({ ...st, survey: { ...st.survey, [p.id]: { ...(st.survey[p.id] || {}), [c]: v } } }))
   const addAction = (element: string) => update((st) => ({ ...st, actions: [...st.actions, { id: uid(), place: p.id, element, quarter: QUARTERS[1], status: 'רעיון' }] }))
 
+  const photos = photosOf(p.id)
+  const tn = thenNow(p.id)
+  const stage = STAGES.find((x) => x.place === p.id)
+  const tour = walks[0]
+  const read = () => {
+    if (reading) { hush(); setReading(false); return }
+    if (speak(`${p.name}. ${p.body}`, () => setReading(false))) setReading(true)
+  }
+
   return (
     <div className="page">
+      {photos.length > 0 && (
+        <div style={{ marginBottom: 18 }}>
+          <StopFilm photos={photos} lines={p.body.split('. ').slice(0, 4).map((x) => x.replace(/\.$/, '') + '.')} height={360} />
+        </div>
+      )}
       <div className="crumbs"><a href={href('atlas')}>אטלס</a> / <a href={href('atlas', { layer: p.layer })}>{LAYERS[p.layer].name}</a> / {p.name}</div>
       <div className="grid-split">
         <div>
@@ -39,6 +59,11 @@ export default function PlacePage({ id }: { id: string }) {
               ))}
             </div>
           )}
+          <div className="row" style={{ marginTop: 14 }}>
+            {canSpeak() && <button className="press btn" onClick={read}>{reading ? 'עצירת ההקראה' : 'הקראת הסיפור'}</button>}
+            {tour && <a className="press btn btn-primary" href={href('tour', { id: tour.id })}>לסיור חי: {tour.title}</a>}
+            {stage && <a className="press btn" href={href('mapping')}>רעיון להקרנה: {stage.title}</a>}
+          </div>
           <div className="src">מקור: {p.source.url ? <a href={p.source.url} target="_blank" rel="noreferrer">{p.source.label}</a> : p.source.label}</div>
         </div>
         <div className="card" style={{ display: 'grid', gridTemplateColumns: 'auto minmax(0,1fr)', gap: 16, alignItems: 'center' }}>
@@ -47,6 +72,13 @@ export default function PlacePage({ id }: { id: string }) {
           <p className="muted" style={{ gridColumn: '1 / -1', margin: 0 }}>{surveyed(p) ? <span className="saved">סקר שטח נשמר. הציון מעודכן.</span> : 'הערכת פתיחה. סמנו בסקר למטה, והציון יתעדכן.'}</p>
         </div>
       </div>
+
+      {(tn || photos.length > 1) && (
+        <div className="grid-2" style={{ marginTop: 24, alignItems: 'start' }}>
+          {tn && <div><h2 className="section-title" style={{ marginTop: 0 }}>אז והיום</h2><ThenNow then={tn.then} now={tn.now} height={300} /></div>}
+          {photos.length > 1 && <div style={{ minWidth: 0 }}><h2 className="section-title" style={{ marginTop: 0 }}>תמונות</h2><Strip photos={photos} /></div>}
+        </div>
+      )}
 
       <h2 className="section-title">המלצות: מה יחזק את המקום</h2>
       <p className="section-sub">הפער הגדול קודם, והרכיב הזול והמהיר ביותר שמתקן אותו.</p>

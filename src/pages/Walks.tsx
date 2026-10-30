@@ -6,7 +6,12 @@ import { RINGS, RingId } from '../data/rings'
 import { profile, recommend, weakest } from '../lib/logic'
 import { href } from '../lib/route'
 
-const km = (w: Walk) => {
+import { PATHS } from '../data/paths'
+import { coverOf } from '../data/media'
+
+// אורך אמיתי לאורך השביל, מהניתוב. בלי שביל: הערכה מקו ישר
+const km = (w: Walk) => (PATHS[w.id] ? PATHS[w.id].meters / 1000 : kmAir(w))
+const kmAir = (w: Walk) => {
   const ps = w.stops.map((s) => placeById(s.place)!).filter(Boolean)
   let d = 0
   for (let i = 1; i < ps.length; i++) d += Math.hypot((ps[i].lat - ps[i - 1].lat) * 111, (ps[i].lng - ps[i - 1].lng) * 94.6)
@@ -25,7 +30,8 @@ export function WalksPage() {
           const ps = w.stops.map((s) => placeById(s.place)!).filter(Boolean)
           const ring = w.ring ? RINGS.find((r) => r.id === w.ring)! : null
           return (
-            <a key={w.id} className="card card-link" href={href('walk', { id: w.id })} style={{ borderTop: `4px solid ${ring ? ring.color : 'var(--ink)'}` }}>
+            <a key={w.id} className="card card-link" href={href('walk', { id: w.id })} style={{ borderTop: `4px solid ${ring ? ring.color : 'var(--ink)'}`, paddingTop: 0 }}>
+              {(() => { const c = ps.map((x) => coverOf(x.id)).find(Boolean); return c ? <div className="photo-hero" style={{ height: 130, margin: '0 -18px 12px' }}><img src={c.src} alt="" loading="lazy" /></div> : <div style={{ height: 16 }} /> })()}
               <div className="row" style={{ justifyContent: 'space-between', flexWrap: 'nowrap', alignItems: 'flex-start' }}>
                 <div style={{ minWidth: 0 }}>
                   <span className="label">{w.theme}</span>
@@ -66,7 +72,7 @@ export function WalkPage({ id }: { id: string }) {
           <div className="page-sub"><Lines text={w.description} /></div>
           <div className="grid-kpi" style={{ gridTemplateColumns: 'repeat(3, minmax(0,1fr))' }}>
             <div className="card kpi"><div className="v">{w.stops.length}</div><div className="t">תחנות</div></div>
-            <div className="card kpi"><div className="v">{km(w).toFixed(1)}</div><div className="t">ק"מ, הערכה</div></div>
+            <div className="card kpi"><div className="v">{km(w).toFixed(1)}</div><div className="t">ק"מ לאורך השביל</div></div>
             <div className="card kpi"><div className="v">{Math.round((km(w) / 4) * 60)}</div><div className="t">דקות הליכה</div></div>
           </div>
           <div className="card" style={{ marginTop: 14, display: 'grid', gridTemplateColumns: 'auto minmax(0,1fr)', gap: 14, alignItems: 'center' }}>
@@ -76,10 +82,11 @@ export function WalkPage({ id }: { id: string }) {
               <div className="tone tone-insight" style={{ boxShadow: 'none', marginTop: 6 }}><Rich as="p">{`הטבעת החלשה במסלול: ==${RINGS.find((r) => r.id === weakRing)!.name}==. שם מתחילים.`}</Rich></div>
             </div>
           </div>
-          <p className="src">מקור: {w.source}. אורך המסלול מוערך לפי קו ישר בין תחנות, כפול 1.25.</p>
+          <a className="press btn btn-primary" href={href('tour', { id: w.id })} style={{ marginTop: 14 }}>יציאה לסיור חי</a>
+          <p className="src">מקור: {w.source}. השביל והאורך מחושבים לאורך הרחובות, בניתוב הולכי רגל של OpenStreetMap.</p>
         </div>
         <div className="card" style={{ padding: 0, height: 440 }}>
-          <CityMap places={ps} walks={[w]} fit showQuarters={false} height="440px" onSelect={(pid) => (location.hash = href('place', { id: pid }).slice(1))} />
+          <CityMap places={ps} walks={[w]} numbered fit showQuarters={false} height="440px" onSelect={(pid) => (location.hash = href('place', { id: pid }).slice(1))} />
         </div>
       </div>
 

@@ -2,7 +2,7 @@
 const { chromium } = require('playwright')
 const path = require('path')
 const BASE = process.env.BASE || 'http://localhost:4173'
-const pages = ['', 'atlas', 'atlas?place=h5', 'place?id=h5', 'walks', 'walk?id=ring-lev', 'kit', 'plan', 'city', 'method', 'show']
+const pages = ['', 'atlas', 'place?id=h14', 'walks', 'walk?id=ring-lev', 'tour?id=ring-lev', 'xp', 'mapping', 'walls', 'games', 'language', 'kit', 'plan', 'city', 'method', 'show']
 ;(async () => {
   const b = await chromium.launch()
   const errors = []

@@ -114,6 +114,12 @@ export const ELEMENTS: ElementKind[] = [
   { id: 'sign', name: 'שילוט והכוונה', ring: 'ruach', serves: ['walk', 'learn'], basis: '"תוכנית אב: שילוט", אשדוד; ת"י 1918 לניגודיות וגובה.', tier: 'קל-זול-מהיר', season: 'לפני השקה', note: 'שילוט חרוט, אחיד לעיר ומובחן לכל רובע.' },
   { id: 'qr', name: 'שכבה דיגיטלית QR', ring: 'ruach', serves: ['learn', 'story'], basis: 'עצבה: "חוויית מבקר 360", מתחילה ונגמרת בבית.', tier: 'קל-זול-מהיר', season: 'מיידי', note: 'כל QR מוביל לדף המקום באפליקציה הזו.' },
   { id: 'lookout', name: 'נקודת תצפית', ring: 'ruach', serves: ['see', 'sit'], basis: 'מצגת עיר של טבעות: "מוקדי תצפית" בטבעת התנועה.', tier: 'בינוני', season: 'כל השנה', note: 'גבעת יונה, השפך, המצודה.' },
+  { id: 'projection', name: 'מיפוי הקרנה', ring: 'ruach', serves: ['beauty', 'story', 'see'], basis: 'פסטיבלי אור בעולם: ליון, סידני, פראג, ירושלים. תוכנות: MadMapper, Resolume, TouchDesigner.', tier: 'בינוני', season: 'ערבי חורף וסתיו, כשהלילה מוקדם', note: 'הבניין מספר את עצמו באור, בלי לגעת בחזית.' },
+  { id: 'audio', name: 'נקודת שמע והקלטה', ring: 'lev', serves: ['story', 'learn'], basis: 'עצבה: קולות תושבים בגוף ראשון. הקראה בטלפון לפי מיקום.', tier: 'קל-זול-מהיר', season: 'מיידי', note: 'הטלפון מזהה את התחנה ומשמיע את הסיפור.' },
+  { id: 'mural-child', name: 'ציור בגובה ילד', ring: 'lev', serves: ['play', 'scale', 'beauty'], basis: 'שמות הרחובות ברובעים: חיות וציפורים, פרחים, פירות ואבני חן.', tier: 'קל-זול-מהיר', season: 'אביב', note: 'בגובה 0 עד 1.2 מטר, עם ילדי בית הספר הסמוך.' },
+  { id: 'fifth', name: 'החזית החמישית', ring: 'lev', serves: ['beauty', 'see'], basis: 'מגדלי ההתחדשות יוצרים מבט חדש על גגות גני הילדים.', tier: 'בינוני', season: 'קיץ, בחופשת הגנים', note: 'כל גג הוא דף בספר ילדים.' },
+  { id: 'greenwall', name: 'קיר ירוק', ring: 'tnua', serves: ['climate', 'beauty'], basis: 'פטריק בלאן, קה ברנלי ו-CaixaForum. מטפסים על כבלים כפתרון קל.', tier: 'בינוני', season: 'שתילה בסתיו', note: 'לכידת אבק, קירור וטבע באזור תעשייה.' },
+  { id: 'game', name: 'תחנת משחק', ring: 'ruach', serves: ['play', 'learn'], basis: 'עצבה: משחוק תוכן. עיר בריחה וציד טבעות.', tier: 'קל-זול-מהיר', season: 'חופשות וחגים', note: 'חידה שהתשובה לה נמצאת במקום.' },
   { id: 'stage', name: 'במה קהילתית ואירוע', ring: 'ruach', serves: ['talk', 'play'], basis: 'עצבה: בימות קהילתיות (שביל רעננה); מצגת: "אירועיות לאורך היום והערב".', tier: 'קל-זול-מהיר', season: 'חגים וקיץ', note: 'רחבה עם חשמל, צל וישיבה.' },
 ]
 

@@ -4,15 +4,19 @@ import { href } from '../lib/route'
 export const NAV = [
   { page: 'atlas', label: 'אטלס' },
   { page: 'walks', label: 'מסלולים' },
+  { page: 'xp', label: 'חוויה' },
+  { page: 'games', label: 'משחקים' },
   { page: 'kit', label: 'ארגז כלים' },
-  { page: 'plan', label: 'תכנון ותזמון' },
-  { page: 'city', label: 'העיר וסיפוריה' },
+  { page: 'plan', label: 'תכנון' },
+  { page: 'city', label: 'העיר' },
+  { page: 'language', label: 'שפה' },
   { page: 'method', label: 'שיטה' },
   { page: 'show', label: 'מצגת' },
 ]
+const PARENT: Record<string, string> = { place: 'atlas', walk: 'walks', tour: 'walks', mapping: 'xp', walls: 'xp' }
 
 export default function TopBar({ page }: { page: string }) {
-  const current = page === 'place' ? 'atlas' : page === 'walk' ? 'walks' : page
+  const current = PARENT[page] || page
   return (
     <header className="topbar">
       <div className="topbar-in">
