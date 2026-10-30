@@ -1,38 +1,8 @@
-import { createElement } from 'react'
-import { href } from '../lib/route'
-
-export const NAV = [
-  { page: 'atlas', label: 'אטלס' },
-  { page: 'walks', label: 'מסלולים' },
-  { page: 'xp', label: 'חוויה' },
-  { page: 'games', label: 'משחקים' },
-  { page: 'kit', label: 'ארגז כלים' },
-  { page: 'plan', label: 'תכנון' },
-  { page: 'city', label: 'העיר' },
-  { page: 'language', label: 'שפה' },
-  { page: 'understand', label: 'מפות וידע' },
-  { page: 'sources', label: 'מקורות' },
-  { page: 'method', label: 'שיטה' },
-  { page: 'show', label: 'מצגת' },
-]
-const PARENT: Record<string, string> = { place: 'atlas', 'route-editor': 'walks', walk: 'walks', tour: 'walks', mapping: 'xp', walls: 'xp' }
-
-export default function TopBar({ page }: { page: string }) {
-  const current = PARENT[page] || page
-  return (
-    <header className="topbar">
-      <div className="topbar-in">
-        <a className="brand" href="#/" aria-label="שלוש טבעות, לדף הבית">
-          <img src={import.meta.env.BASE_URL + "favicon.svg"} alt="" />
-          <span className="bt">שלוש טבעות<small>PLACEMAKING · אשדוד</small></span>
-        </a>
-        <nav className="tabs" aria-label="ניווט ראשי">
-          {NAV.map((n) => (
-            <a key={n.page} className="tab" href={href(n.page)} aria-current={current === n.page ? 'page' : undefined}>{n.label}</a>
-          ))}
-        </nav>
-        {createElement('ai-menu', { brand: 'ashdod' })}
-      </div>
-    </header>
-  )
+import {createElement,useState} from 'react'
+import {href} from '../lib/route'
+import {PAGES,SECTIONS,pageInfo,pageTitle} from '../data/navigation'
+import GlobalSearch from './GlobalSearch'
+export const NAV=PAGES.map(p=>({page:p.page,label:p.title}))
+export default function TopBar({page}:{page:string}){const info=pageInfo(page),[expanded,setExpanded]=useState(false)
+ return <header className="app-header no-print"><a href="#main-content" onClick={e=>{e.preventDefault();document.getElementById("main-content")?.focus()}} className="skip-content">לתוכן העמוד</a><div className="app-header-primary"><a className="app-brand" href="#/" aria-label="שלוש טבעות, מבט על"><svg viewBox="0 0 44 44" width="36" height="36" aria-hidden="true">{[18,12,6].map((r,i)=><circle key={r} cx="22" cy="22" r={r} fill="none" stroke={['#D9822B','#B83C6F','#2B6CA3'][i]} strokeWidth="2.5"/>)}</svg><span>שלוש טבעות<small>אטלס עירוני · אשדוד</small></span></a><nav className="app-primary-nav" aria-label="ניווט ראשי"><a href="#/" aria-current={page==='home'?'page':undefined}>מבט על</a>{SECTIONS.map(s=><a href={href(s.page)} key={s.id} aria-current={info?.section===s.id?'page':undefined}><small>{s.number}</small>{s.name}</a>)}</nav><div className="app-header-actions"><GlobalSearch/><a href="#/workspace" className="app-workspace-link">העבודה שלי</a>{createElement('ai-menu',{brand:'ashdod'})}</div></div><div className="app-header-secondary"><nav aria-label="כלים בתחום הנבחר">{info?PAGES.filter(p=>p.section===info.section).map(p=><a key={p.page} href={href(p.page)} aria-current={info.page===p.page?'page':undefined}>{p.title}</a>):<span>מרחב, אנשים וידע → חוויה ותכנון</span>}</nav><button aria-expanded={expanded} onClick={()=>setExpanded(v=>!v)}>מפת המערכת {expanded?'−':'+'}</button></div>{expanded&&<div className="app-system-menu"><div className="app-system-menu-top"><strong>כל מקום במערכת, בהקשר שלו.</strong><button onClick={()=>setExpanded(false)}>סגירה</button></div><div>{SECTIONS.map(s=><section key={s.id}><span>{s.number} / {s.name}</span><p>{s.description}</p>{PAGES.filter(p=>p.section===s.id).map(p=><a key={p.page} href={href(p.page)} onClick={()=>setExpanded(false)}>{p.title} <span>←</span></a>)}</section>)}</div></div>}</header>
 }

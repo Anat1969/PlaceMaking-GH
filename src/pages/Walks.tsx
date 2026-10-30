@@ -1,3 +1,4 @@
+import {useState} from 'react'
 import { walkColor } from '../data/walk-colors'
 import CityMap from '../components/CityMap'
 import RingGlyph from '../components/RingGlyph'
@@ -16,12 +17,16 @@ const minutes = (w: Walk) => !w.ring && PATHS[w.id] ? String(Math.round(PATHS[w.
 const avgProfile = (ps: Place[]) => Object.fromEntries(RINGS.map((r) => [r.id, Math.round(ps.reduce((a, p) => a + profile(p)[r.id], 0) / ps.length)])) as Record<RingId, number>
 
 export function WalksPage() {
+  const [query,setQuery]=useState(''),[kind,setKind]=useState('all')
+  const visible=WALKS.filter(w=>(kind==='all'||(kind==='rings'?!!w.ring:!w.ring))&&`${w.title} ${w.description} ${w.theme}`.includes(query.trim())).sort((a,b)=>Number(!!b.ring)-Number(!!a.ring))
   return (
     <div className="page">
       <a className="press chip" href="#/route-editor">עריכת הטבעות על המפה</a><h1 className="page-title">מסלולי שיטוט ושהייה</h1>
-      <div className="page-sub"><Lines text={`**${WALKS.length} מסלולים**: שלוש הטבעות, ותשעה מסלולי מורשת מרשימת השימור. ==כל מסלול נמדד כמו מקום: מה חסר לאורכו.==`} /></div>
+      <div className="page-sub"><Lines text={`**${WALKS.length} מסלולים**: שלוש הטבעות, ותשעה מסלולי מורשת מרשימת השימור. תוואים ותחנות מוצעים, עם הבחנה בין דרך ממופה לחיבורים שעדיין נדרשים לבדיקה.`} /></div>
+      <div className="collection-toolbar"><label>חיפוש מסלול<input className="field" value={query} onChange={e=>setQuery(e.target.value)} placeholder="שם מסלול או נושא"/></label><div className="row">{[['all','הכול'],['rings','שלוש הטבעות'],['heritage','מסלולי מורשת']].map(([value,label])=><button key={value} className="press chip" aria-pressed={kind===value} onClick={()=>setKind(value)}>{label}</button>)}</div><span>{visible.length} מסלולים</span></div>
+      {!visible.length&&<div className="collection-empty"><h2>אין מסלולים בבחירה הזו</h2><p>נסו חיפוש אחר או הציגו את כל המסלולים.</p><button className="press btn" onClick={()=>{setQuery('');setKind('all')}}>איפוס הסינון</button></div>}
       <div className="grid-3">
-        {WALKS.map((w) => {
+        {visible.map((w) => {
           const ps = w.stops.map((s) => placeById(s.place)!).filter(Boolean)
           const ring = w.ring ? RINGS.find((r) => r.id === w.ring)! : null
           return (

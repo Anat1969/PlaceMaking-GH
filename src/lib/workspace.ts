@@ -1,0 +1,22 @@
+import {PLACES} from '../data/places'
+import {ELEMENTS,CRITERIA} from '../data/rings'
+import {MAYOR_DECK} from '../data/mayor-deck'
+export type Backup={app:'ashdod-placemaking';version:1;createdAt:string;data:Record<string,string>}
+const ids=new Set(PLACES.map(p=>p.id)),els=new Set(ELEMENTS.map(e=>e.id)),criteria=new Set(CRITERIA.map(c=>c.id))
+const object=(v:unknown):v is Record<string,unknown>=>!!v&&typeof v==='object'&&!Array.isArray(v)
+const text=(v:unknown)=>typeof v==='string'&&v.length<=50000
+export const backupKey=(key:string)=>['pm-ashdod-v1','pm-route-edits','pm-civic-learning','pm-mayor-deck-v2','pm-ashdod-game'].includes(key)||(key.startsWith('pm-knowledge-')&&ids.has(key.slice(13)))
+export function collectBackup():Backup{const data:Record<string,string>={};for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i)!;if(backupKey(k))data[k]=localStorage.getItem(k)!}return {app:'ashdod-placemaking',version:1,createdAt:new Date().toISOString(),data}}
+export function downloadBackup(backup:Backup){const u=URL.createObjectURL(new Blob([JSON.stringify(backup,null,2)],{type:'application/json'}));const a=document.createElement('a');a.href=u;a.download='ashdod-workspace-'+new Date().toISOString().slice(0,10)+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(u),1000)}
+function validValue(key:string,value:unknown):boolean{
+ if(key==='pm-mayor-deck-v2')return Array.isArray(value)&&value.length===MAYOR_DECK.length&&value.every(s=>object(s)&&MAYOR_DECK.some(x=>x.id===s.id)&&['id','title','lead','chapter','eyebrow','notes'].every(k=>text(s[k])))&&new Set(value.map(s=>s.id)).size===MAYOR_DECK.length
+ if(!object(value))return false
+ if(key.startsWith('pm-knowledge-'))return Object.entries(value).every(([k,v])=>['local','city','strategy','circulation','composition','participation'].includes(k)&&text(v))
+ if(key==='pm-civic-learning')return Object.values(value).every(text)
+ if(key==='pm-ashdod-game')return ['solved','found'].every(k=>object(value[k])&&Object.entries(value[k] as Record<string,unknown>).every(([k,v])=>/^\d+$/.test(k)&&typeof v==='boolean'))
+ if(key==='pm-route-edits')return Object.entries(value).every(([k,p])=>['ring-lev','ring-tnua','ring-ruach'].includes(k)&&object(p)&&Array.isArray(p.line)&&p.line.length>=4&&p.line.length<=15000&&p.line.every(c=>Array.isArray(c)&&c.length===2&&c.every(Number.isFinite)&&c[0]>31.6&&c[0]<32&&c[1]>34.4&&c[1]<34.9)&&JSON.stringify(p.line[0])===JSON.stringify(p.line[p.line.length-1]))
+ if(key==='pm-ashdod-v1')return object(value.survey)&&Object.entries(value.survey).every(([id,vs])=>ids.has(id)&&object(vs)&&Object.entries(vs).every(([k,v])=>criteria.has(k)&&typeof v==='number'&&v>=0&&v<=3))&&Array.isArray(value.actions)&&value.actions.length<5000&&value.actions.every(a=>object(a)&&text(a.id)&&ids.has(a.place as string)&&els.has(a.element as string)&&text(a.quarter)&&['רעיון','מתוכנן','בביצוע','בוצע'].includes(a.status as string)&&(a.note===undefined||text(a.note)))&&Array.isArray(value.docs)&&value.docs.length<5000&&value.docs.every(d=>object(d)&&text(d.id)&&els.has(d.element as string)&&typeof d.lat==='number'&&Number.isFinite(d.lat)&&d.lat>=-90&&d.lat<=90&&typeof d.lng==='number'&&Number.isFinite(d.lng)&&d.lng>=-180&&d.lng<=180&&['קיים','חסר','פגום'].includes(d.state as string)&&text(d.at)&&(d.note===undefined||text(d.note)))
+ return false
+}
+export function parseBackup(raw:string):Backup{if(raw.length>6000000)throw Error('הקובץ גדול מדי. בחרו גיבוי עד 6 MB.');const b=JSON.parse(raw);if(!object(b)||b.app!=='ashdod-placemaking'||b.version!==1||!object(b.data)||Object.keys(b.data).length>500)throw Error('זה אינו קובץ גיבוי נתמך של האפליקציה.');for(const [k,v] of Object.entries(b.data)){if(!backupKey(k)||typeof v!=='string'||!validValue(k,JSON.parse(v)))throw Error('נתונים לא תקינים בגיבוי: '+k)}return b as unknown as Backup}
+export function restoreBackup(b:Backup){const validated=parseBackup(JSON.stringify(b));const previous=Object.fromEntries(Object.keys(validated.data).map(k=>[k,localStorage.getItem(k)]));try{for(const [k,v] of Object.entries(validated.data))localStorage.setItem(k,v)}catch(e){for(const k of Object.keys(previous)){try{localStorage.removeItem(k)}catch{/* Continue attempting recovery. */}}for(const [k,v] of Object.entries(previous)){try{if(v===null)localStorage.removeItem(k);else localStorage.setItem(k,v)}catch{/* Preserve the original exception. */}}throw e}}

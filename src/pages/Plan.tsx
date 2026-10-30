@@ -4,16 +4,17 @@ import { RINGS, elementById, ELEMENTS } from '../data/rings'
 import { QUARTERS, recommend, update, useStore, uid, Action } from '../lib/logic'
 import { href } from '../lib/route'
 
+// לוח זמנים מוצע ממסמך המקור, אינו סטטוס ביצוע מאומת.
 // לוח הזמנים של פיילוט טבעת הלב, מתוך המצגת "עיר של טבעות" (ספטמבר 2026)
 const PILOT = [
-  { m: 'ספט׳–אוק׳ 2026', t: 'מיפוי ומחקר', d: 'הליכה בגובה העיניים, תיעוד בשטח באטלס, סקר 12 הקריטריונים.' },
-  { m: 'נוב׳–דצמ׳ 2026', t: 'קונספט ותוכן', d: 'סיפורים מהארכיון, קולות תושבים, בחירת 5 עד 8 מוקדי עוגן.' },
-  { m: 'ינו׳–פבר׳ 2027', t: 'תכנון מפורט', d: 'שפה גרפית, דיגלול ושילוט, רחבות שהייה וצל.' },
-  { m: 'מרץ–אפר׳ 2027', t: 'ייצור והתקנה', d: 'צל וספסלים לפני הקיץ.' },
-  { m: 'מאי 2027', t: 'השקה', d: 'אירוע בטבעת הלב, עם תושבי רובע א\' הראשונים.' },
+  { m: 'שלב 01', t: 'מיפוי ומחקר', d: 'הליכה בגובה העיניים, תיעוד בשטח באטלס, סקר 12 הקריטריונים.' },
+  { m: 'שלב 02', t: 'קונספט ותוכן', d: 'סיפורים מהארכיון, קולות תושבים, בחירת 5 עד 8 מוקדי עוגן.' },
+  { m: 'שלב 03', t: 'תכנון מפורט', d: 'שפה גרפית, דיגלול ושילוט, רחבות שהייה וצל.' },
+  { m: 'שלב 04', t: 'ייצור והתקנה', d: 'צל וספסלים לפני הקיץ.' },
+  { m: 'שלב 05', t: 'השקה', d: 'הפעלה עם התושבים, תיעוד שימוש ובחינה לפני הרחבה.' },
 ]
 const STATUS: Action['status'][] = ['רעיון', 'מתוכנן', 'בביצוע', 'בוצע']
-const stColor = { 'רעיון': '#B9B2A4', 'מתוכנן': '#2B6CA3', 'בביצוע': '#D9822B', 'בוצע': '#1F8A5B' }
+const stColor = { 'רעיון': '#B9B2A4', 'מתוכנן': '#596774', 'בביצוע': '#75644E', 'בוצע': '#1F8A5B' }
 
 // עונה מתאימה: צל ומים לפני הקיץ, תאורה לפני החורף
 const seasonQuarter = (el: string, i: number) => {
@@ -35,7 +36,7 @@ export default function Plan() {
       if (!p) return
       recommend(p, 6).filter((r) => r.el.tier !== 'הון').slice(0, 2).forEach((r) => {
         if (acts.some((a) => a.place === p.id && a.element === r.el.id)) return
-        next.push({ id: uid(), place: p.id, element: r.el.id, quarter: seasonQuarter(r.el.id, i), status: 'מתוכנן', note: 'פיילוט טבעת הלב' })
+        next.push({ id: uid(), place: p.id, element: r.el.id, quarter: seasonQuarter(r.el.id, i), status: 'רעיון', note: 'הצעה אוטומטית לבדיקה · פיילוט טבעת הלב' })
       })
     })
     update((s) => ({ ...s, actions: [...s.actions, ...next] }))
@@ -52,12 +53,12 @@ export default function Plan() {
   }
 
   return (
-    <div className="page">
+    <div className="page"><p className="app-data-notice">תוכנית עבודה אישית. המלצות, רבעונים ואומדני מקור הם בסיס לבדיקה; אינם אישור תקציבי או לוח ביצוע מאושר.</p>
       <h1 className="page-title">תכנון ותזמון</h1>
       <div className="page-sub"><Lines text="כל המלצה שנבחרה נכנסת לכאן, עם רבעון וסטטוס. ==העונה קובעת את הסדר: צל לפני הקיץ, תאורה לפני החורף.==" /></div>
 
-      <h2 className="section-title">פיילוט 70 שנה: טבעת הלב</h2>
-      <p className="section-sub">לוח הזמנים מהמצגת "עיר של טבעות". אומדן <bdi className="num">80,000</bdi> ₪, ועוד כ-<bdi className="num">70,000</bdi> ₪ מ-MUNI100 לעמדות שהייה לוותיקים.</p>
+      <h2 className="section-title">פיילוט טבעת הלב · שלבי עבודה מוצעים</h2>
+      <p className="section-sub">שלבי עבודה מוצעים. היקף הפיילוט, מועדי הביצוע והתקציב דורשים אימות, תמחור ואישור לפני ביצוע.</p>
       <div className="steps">
         {PILOT.map((s, i) => (
           <div className="step" key={i}>
@@ -70,12 +71,12 @@ export default function Plan() {
 
       <div className="row" style={{ margin: '24px 0 8px', justifyContent: 'space-between' }}>
         <div className="row">
-          <button className="press btn btn-primary" onClick={autoPilot}>בניית תוכנית לפיילוט</button>
+          <button className="press btn btn-primary" onClick={autoPilot}>יצירת טיוטה לפיילוט</button>
           <button className="press btn" onClick={csv} disabled={!acts.length && !store.docs.length}>הורדה לאקסל</button>
         </div>
         {store.savedAt > 0 && <span className="saved">נשמר במכשיר</span>}
       </div>
-      <p className="muted">"בניית תוכנית" עוברת על 8 תחנות טבעת הלב, ומוסיפה לכל אחת את שתי ההמלצות החזקות שאינן השקעת הון, ברבעון שמתאים לעונה.</p>
+      <p className="muted">"בניית תוכנית" עוברת על תחנות טבעת הלב, ומוסיפה לכל אחת שתי המלצות אוטומטיות לבדיקה שאינן השקעת הון, ברבעון שמתאים לעונה.</p>
 
       <div className="grid-kpi" style={{ margin: '16px 0' }}>
         <div className="card kpi"><div className="v">{acts.length}</div><div className="t">התערבויות בתוכנית</div></div>
@@ -84,7 +85,7 @@ export default function Plan() {
       </div>
 
       {acts.length === 0 ? (
-        <div className="tone tone-neutral"><h4>התוכנית ריקה</h4><Rich as="p">{`לחצו **בניית תוכנית לפיילוט**, או הוסיפו המלצות מכרטיס של מקום באטלס.`}</Rich></div>
+        <div className="tone tone-neutral"><h4>התוכנית ריקה</h4><Rich as="p">{`לחצו **יצירת טיוטה לפיילוט**, או הוסיפו המלצות מכרטיס של מקום באטלס.`}</Rich></div>
       ) : (
         <div className="gantt">
           <table>
@@ -127,7 +128,7 @@ export default function Plan() {
         </div>
       )}
 
-      <h2 className="section-title">שבעת המיזמים: התקציב</h2>
+      <h2 className="section-title">שבעת המיזמים: אומדני מקור</h2>
       <p className="section-sub">אומדנים מתוך "שבעת מיזמי הפלייסמייקינג", אגף אדריכלות העיר, נובמבר 2025.</p>
       <div className="grid-3">
         {PLACES.filter((p) => p.layer === 'project').map((p) => (

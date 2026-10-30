@@ -1,0 +1,6 @@
+import {useEffect,useState} from 'react'
+export default function PageOutline({page}:{page:string}){const [sections,setSections]=useState<{id:string;title:string}[]>([])
+ useEffect(()=>{const root=document.getElementById('main-content');if(!root)return;let frame=0;const scan=()=>{const headings=Array.from(root.querySelectorAll<HTMLHeadingElement>('h2')).filter(h=>h.textContent?.trim()&&h.getClientRects().length);const next=headings.slice(0,18).map((h,i)=>{if(!h.id)h.id='page-section-'+i;return {id:h.id,title:h.textContent!.trim()}});setSections(old=>JSON.stringify(old)===JSON.stringify(next)?old:next)};scan();const observer=new MutationObserver(()=>{cancelAnimationFrame(frame);frame=requestAnimationFrame(scan)});observer.observe(root,{childList:true,subtree:true});return()=>{observer.disconnect();cancelAnimationFrame(frame)}},[page])
+ if(sections.length<2)return null
+ return <details className="page-outline no-print"><summary>במסך הזה <span>{sections.length} נושאים</span></summary><nav aria-label="ניווט בנושאי העמוד">{sections.map(s=><button key={s.id} onClick={()=>document.getElementById(s.id)?.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'start'})}>{s.title}</button>)}</nav></details>
+}

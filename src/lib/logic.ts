@@ -21,13 +21,16 @@ const load = (): Store => {
 let state: Store = load()
 const subs = new Set<() => void>()
 let savedAt = 0
+let saveError = ''
 export function update(fn: (s: Store) => Store) {
   state = fn(state)
   try {
     localStorage.setItem(KEY, JSON.stringify(state))
     savedAt = Date.now()
+    saveError = ''
   } catch {
-    /* פרטי: נשאר בזיכרון */
+    savedAt = 0
+    saveError = 'השמירה במכשיר נכשלה. השינויים נשארו פתוחים בזיכרון; ייצאו גיבוי לפני יציאה.'
   }
   subs.forEach((f) => f())
 }
@@ -38,7 +41,7 @@ export function useStore() {
     subs.add(f)
     return () => void subs.delete(f)
   }, [])
-  return { ...state, savedAt }
+  return { ...state, savedAt, saveError }
 }
 
 // ---------- ציון ----------
