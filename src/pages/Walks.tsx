@@ -1,3 +1,4 @@
+import { walkColor } from '../data/walk-colors'
 import CityMap from '../components/CityMap'
 import RingGlyph from '../components/RingGlyph'
 import Rich, { Lines } from '../components/Rich'
@@ -24,7 +25,7 @@ export function WalksPage() {
           const ps = w.stops.map((s) => placeById(s.place)!).filter(Boolean)
           const ring = w.ring ? RINGS.find((r) => r.id === w.ring)! : null
           return (
-            <a key={w.id} className="card card-link" href={href('walk', { id: w.id })} style={{ borderTop: `4px solid ${ring ? ring.color : 'var(--ink)'}`, paddingTop: 0 }}>
+            <a key={w.id} className="card card-link" href={href('walk', { id: w.id })} style={{ borderTop: `4px solid ${walkColor(w)}`, paddingTop: 0 }}>
               {(() => { const c = ps.map((x) => coverOf(x.id)).find(Boolean); return c ? <div className="photo-hero" style={{ height: 130, margin: '0 -18px 12px' }}><img src={c.src} alt="" loading="lazy" /></div> : <div style={{ height: 16 }} /> })()}
               <div className="row" style={{ justifyContent: 'space-between', flexWrap: 'nowrap', alignItems: 'flex-start' }}>
                 <div style={{ minWidth: 0 }}>
@@ -77,7 +78,7 @@ export function WalkPage({ id }: { id: string }) {
             </div>
           </div>
           <a className="press btn btn-primary" href={href('tour', { id: w.id })} style={{ marginTop: 14 }}>תוכן התחנות וסיור חי</a>
-          <p className="src">מקור: {w.source}. {w.ring ? 'תוואי הטבעת בבירור. סדר העוגנים אינו מסלול ניווט מאומת.' : 'ניתוב הולכי רגל מחושב מ־OpenStreetMap; טרם אומתו תנאי השטח והנגישות.'}</p>
+          <p className="src">מקור: {w.source}. {w.ring ? 'התוואי והתחנות מוצגים בצבע המסלול. זהו תוואי מחושב ומוצע לדיוק, לא מסלול ניווט מאומת.' : 'ניתוב הולכי רגל מחושב מ־OpenStreetMap; טרם אומתו תנאי השטח והנגישות.'}</p>
         </div>
         <div className="card" style={{ padding: 0, height: 440 }}>
           <CityMap places={ps} walks={[w]} numbered fit showQuarters={false} height="440px" onSelect={(pid) => (location.hash = href('place', { id: pid }).slice(1))} />

@@ -1,3 +1,4 @@
+import { walkColor } from '../data/walk-colors'
 import { useMemo, useState, useCallback } from 'react'
 import CityMap from '../components/CityMap'
 import PlaceKnowledge from '../components/PlaceKnowledge'
@@ -69,8 +70,9 @@ export default function Atlas({ route }: { route: Route }) {
           <div className="li"><svg width="22" height="22" viewBox="0 0 100 100">{RINGS.map((r, i) => <circle key={r.id} cx="50" cy="50" r={[42, 30, 18][i]} fill="none" stroke={r.color} strokeWidth="11" />)}</svg><span>אותו סמל; טבעת מודגשת = שיוך ראשי</span></div>
           {RINGS.map((r) => <div className="li" key={r.id}><span className="sw" style={{ background: r.color }} />{r.name} · {r.drive} · {r.order}</div>)}
           {Object.entries(LAYERS).map(([k, l]) => <div className="li lg-layer" key={k}><span className="sw" style={{ background: l.color, borderRadius: '50%' }} />{l.name}</div>)}
-          <div className="li">קו מקווקו: ניתוב מורשת מחושב, ללא אימות שטח</div>
-          <div className="li">תוואי הטבעות בבירור ואינו מוצג כמסלול</div>
+          <div className="li">קו צבעוני = תוואי · עיגול ממוספר = תחנה</div>
+          <div className="li">מקווקו = תוואי טבעת מוצע לדיוק</div>
+          {walks.map((w) => <div className="li" key={w.id}><span style={{ display: 'inline-block', minWidth: 24, borderTop: `4px ${w.ring ? 'dashed' : 'solid'} ${walkColor(w)}` }} />{w.title} · {w.stops.length} תחנות</div>)}
           {store.docs.length > 0 && <div className="li"><span className="sw" style={{ background: '#B3261E' }} />תיעוד שטח: חסר, פגום, קיים</div>}
         </div>
       </div>
@@ -87,7 +89,7 @@ export default function Atlas({ route }: { route: Route }) {
               </div>
             </div>
             <p style={{ marginTop: 12 }}><strong>{p.lead}</strong></p>
-            {needsLocation(p) && <p className="tone tone-problem">המיקום בבירור; הנקודה אינה מוצגת במפה.</p>}
+            {needsLocation(p) && <p className="tone tone-problem">מיקום התחנה משוער ודורש דיוק.</p>}
             <PlaceKnowledge p={p} key={p.id} />
             <span className="label" style={{ marginTop: 14 }}>מדדי איכות · הערכת פתיחה או סקר, בנפרד מהשיוך לטבעת</span>
             <div className="grid-3" style={{ gridTemplateColumns: 'repeat(3, minmax(0,1fr))', gap: 6, margin: '10px 0' }}>
@@ -130,7 +132,7 @@ export default function Atlas({ route }: { route: Route }) {
             </div>
             <span className="label">מסלול על המפה</span>
             <select className="field" style={{ width: '100%', marginBottom: 10 }} value={walk} onChange={(e) => setWalk(e.target.value)} aria-label="מסלול על המפה">
-              <option value="rings">שלוש הטבעות · תוואים בבירור</option>
+              <option value="rings">שלוש הטבעות · תוואים ותחנות</option>
               <option value="none">בלי מסלול</option>
               {WALKS.map((w) => <option key={w.id} value={w.id}>{w.title}</option>)}
             </select>

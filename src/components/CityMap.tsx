@@ -1,3 +1,4 @@
+import { walkColor } from '../data/walk-colors'
 import StreetLayer from './StreetLayer'
 import { useEffect, useRef, useState } from 'react'
 import L from 'leaflet'
@@ -81,18 +82,23 @@ export default function CityMap({ places, selected, onSelect, walks = [], showQu
       })
     }
     walks.forEach((w) => {
-      // שביל אמיתי לאורך הרחובות, מחושב מראש בניתוב להולכי רגל. בלי שביל: קו ישר מקווקו.
+      // תוואי על רשת הרחובות המחושבת; דורש דיוק ובדיקת שטח, ונשאר גלוי למיפוי.
       const real = paths[w.id]?.line
-      // ניתוב מחושב אינו אישור רציפות. טבעות שתוואיהן בבירור אינן מוצגות כנתיב.
-      if (w.ring || !real) return
+      if (!real) return
       const pts = real
-      const color = w.ring ? RINGS.find((r) => r.id === w.ring)!.color : '#14202B'
+      const color = walkColor(w)
       L.polyline(pts, { color: '#fff', weight: 8, opacity: 0.85, lineJoin: 'round' }).addTo(g)
-      L.polyline(pts, { color, weight: 4, opacity: 0.8, lineJoin: 'round', dashArray: '6 8' }).addTo(g)
-      if (numbered) w.stops.forEach((s, i) => {
-        const p = placeById(s.place)
+      const routeLine = L.polyline(pts, { color, weight: 5, opacity: 0.9, lineJoin: 'round', dashArray: w.ring ? '10 5' : undefined, className: `route-line route-${w.id}` }).addTo(g)
+      const routeTip = document.createElement('span'); routeTip.textContent = `${w.title} · תוואי מחושב לדיוק · ${w.stops.length} תחנות`; routeLine.bindTooltip(routeTip, { sticky: true, direction: 'top', className: 'pm-tip' })
+      w.stops.forEach((station, i) => {
+        const p = placeById(station.place)
         if (!p) return
-        L.marker([p.lat, p.lng], { interactive: false, zIndexOffset: 2000, icon: L.divIcon({ className: 'pm-pin', html: `<span style="display:grid;place-items:center;width:20px;height:20px;background:${color};color:#fff;font:600 11px 'IBM Plex Mono';border:2px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,.4)">${i + 1}</span>`, iconSize: [20, 20], iconAnchor: [-6, 24] }) }).addTo(g)
+        const mk = L.marker([p.lat, p.lng], { keyboard: true, title: `${w.title} · תחנה ${i + 1} · ${p.name}`, zIndexOffset: 2100 + i,
+          icon: L.divIcon({ className: 'pm-pin route-stop', html: `<span style="display:grid;place-items:center;width:26px;height:26px;border-radius:50%;background:${color};color:#fff;font:700 12px sans-serif;border:3px ${p.approx || needsLocation(p) ? 'dashed' : 'solid'} #fff;box-shadow:0 1px 5px #0008">${i + 1}</span>`, iconSize: [32,32], iconAnchor: [16,16] }) })
+        const tip = document.createElement('div'); tip.dir = 'rtl'
+        tip.textContent = `${w.title} · תחנה ${i + 1}: ${p.name}${p.approx || needsLocation(p) ? ' · מיקום מוצע לדיוק' : ''}`
+        mk.bindTooltip(tip, { className: 'pm-tip', direction: 'top' })
+        mk.on('click', () => onSelect?.(p.id)); mk.addTo(g)
       })
     })
     if (me) {
@@ -137,6 +143,14 @@ export default function CityMap({ places, selected, onSelect, walks = [], showQu
       fitted.current = true
     }
   }, [places, selected, walks, showQuarters, docs, fit, onSelect, me, numbered])
+
+  // בחירת מסלול מציגה את כל התוואי; החלפת שכבות אינה מאפסת את המבט.
+  const walkKey = walks.map((w) => w.id).join(',')
+  useEffect(() => {
+    const m = map.current
+    const points = walks.flatMap((w) => paths[w.id]?.line || [])
+    if (m && points.length && !me) m.fitBounds(L.latLngBounds(points).pad(0.12), { animate: false, maxZoom: 15 })
+  }, [walkKey])
 
   useEffect(() => {
     const m = map.current
