@@ -10,6 +10,7 @@ export const NAV = [
   { page: 'plan', label: 'תכנון' },
   { page: 'city', label: 'העיר' },
   { page: 'language', label: 'שפה' },
+  { page: 'understand', label: 'להבין' },
   { page: 'sources', label: 'מקורות' },
   { page: 'method', label: 'שיטה' },
   { page: 'show', label: 'מצגת' },

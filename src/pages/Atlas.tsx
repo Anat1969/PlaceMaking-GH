@@ -1,3 +1,4 @@
+import { PATHS } from '../data/paths'
 import { walkColor } from '../data/walk-colors'
 import { useMemo, useState, useCallback } from 'react'
 import CityMap from '../components/CityMap'
@@ -71,7 +72,7 @@ export default function Atlas({ route }: { route: Route }) {
           {RINGS.map((r) => <div className="li" key={r.id}><span className="sw" style={{ background: r.color }} />{r.name} · {r.drive} · {r.order}</div>)}
           {Object.entries(LAYERS).map(([k, l]) => <div className="li lg-layer" key={k}><span className="sw" style={{ background: l.color, borderRadius: '50%' }} />{l.name}</div>)}
           <div className="li">קו צבעוני = תוואי · עיגול ממוספר = תחנה</div>
-          <div className="li">מקווקו = תוואי טבעת מוצע לדיוק</div>
+          <div className="li">מקווקו = תוואי מוצע · חיבור חסר אינו מומצא</div>
           {walks.map((w) => <div className="li" key={w.id}><span style={{ display: 'inline-block', minWidth: 24, borderTop: `4px ${w.ring ? 'dashed' : 'solid'} ${walkColor(w)}` }} />{w.title} · {w.stops.length} תחנות</div>)}
           {store.docs.length > 0 && <div className="li"><span className="sw" style={{ background: '#B3261E' }} />תיעוד שטח: חסר, פגום, קיים</div>}
         </div>
@@ -136,6 +137,11 @@ export default function Atlas({ route }: { route: Route }) {
               <option value="none">בלי מסלול</option>
               {WALKS.map((w) => <option key={w.id} value={w.id}>{w.title}</option>)}
             </select>
+
+            {walks.map((route) => <section className="card" key={route.id} style={{ padding: 10, marginBottom: 10, borderRight: `4px solid ${walkColor(route)}` }}>
+              <strong>{route.title}</strong><p className="muted" style={{ margin: '4px 0' }}>{route.stops.map((stop) => placeById(stop.place)?.name).join(' ← ')}</p>
+              {!!PATHS[route.id]?.gaps?.length && <details><summary>חיבורים שעדיין צריך למפות ({PATHS[route.id].gaps!.length})</summary>{PATHS[route.id].gaps!.map((gap,i) => <p key={i}><strong>{placeById(gap.from)?.name || gap.from} ← {placeById(gap.to)?.name || gap.to}</strong><br />{gap.reason}</p>)}</details>}
+            </section>)}
 
             <div className="card" style={{ margin: '6px 0 14px', padding: 12, background: docMode ? '#FFF9D6' : undefined }}>
               <div className="row" style={{ justifyContent: 'space-between' }}>

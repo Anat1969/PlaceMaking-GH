@@ -28,7 +28,7 @@ export default function Home() {
       <section className="hero">
         <div className="hero-in">
           <div>
-            <div className="kicker">אדריכלות העיר אשדוד · תוכנית אב לפלייסמייקינג וחוויית מבקר</div>
+            <div className="kicker">אדריכלות העיר אשדוד · תוכנית אב לפלייסמייקינג וחוויית התושב והמבקר</div>
             <motion.h1 initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7 }}>
               אשדוד,<br />עיר של טבעות
             </motion.h1>
@@ -39,6 +39,7 @@ export default function Home() {
             </div>
             <div className="row">
               <a className="press btn btn-primary" href={href('atlas')}>לאטלס העיר</a>
+              <a className="press btn" href={href('understand')}>להבין את העיר ולהיות מעורבים</a>
               <a className="press btn" href={href('show')}>מצגת לראש העיר</a>
             </div>
           </div>

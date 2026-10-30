@@ -83,16 +83,21 @@ export default function CityMap({ places, selected, onSelect, walks = [], showQu
     }
     walks.forEach((w) => {
       // תוואי על רשת הרחובות המחושבת; דורש דיוק ובדיקת שטח, ונשאר גלוי למיפוי.
-      const real = paths[w.id]?.line
-      if (!real) return
+      const path = paths[w.id]
+      const real = path?.line
+      if (!path) return
       const pts = real
       const color = walkColor(w)
-      L.polyline(pts, { color: '#fff', weight: 8, opacity: 0.85, lineJoin: 'round' }).addTo(g)
-      const routeLine = L.polyline(pts, { color, weight: 5, opacity: 0.9, lineJoin: 'round', dashArray: w.ring ? '10 5' : undefined, className: `route-line route-${w.id}` }).addTo(g)
-      const routeTip = document.createElement('span'); routeTip.textContent = `${w.title} · תוואי מחושב לדיוק · ${w.stops.length} תחנות`; routeLine.bindTooltip(routeTip, { sticky: true, direction: 'top', className: 'pm-tip' })
+      const segments = path.segments || (real?.length ? [real] : [])
+      segments.forEach((segment) => {
+        L.polyline(segment, { color: '#fff', weight: 8, opacity: 0.85, lineJoin: 'round' }).addTo(g)
+        const routeLine = L.polyline(segment, { color, weight: 5, opacity: 0.9, lineJoin: 'round', dashArray: w.ring ? '10 5' : undefined, className: `route-line route-${w.id}` }).addTo(g)
+        const routeTip = document.createElement('span'); routeTip.textContent = `${w.title} · תוואי מוצע בין העוגנים · ${path.source || 'ניתוב מחושב'}`
+        routeLine.bindTooltip(routeTip, { sticky: true, direction: 'top', className: 'pm-tip' })
+      })
       w.stops.forEach((station, i) => {
         const p = placeById(station.place)
-        if (!p) return
+        if (!p || needsLocation(p)) return
         const mk = L.marker([p.lat, p.lng], { keyboard: true, title: `${w.title} · תחנה ${i + 1} · ${p.name}`, zIndexOffset: 2100 + i,
           icon: L.divIcon({ className: 'pm-pin route-stop', html: `<span style="display:grid;place-items:center;width:26px;height:26px;border-radius:50%;background:${color};color:#fff;font:700 12px sans-serif;border:3px ${p.approx || needsLocation(p) ? 'dashed' : 'solid'} #fff;box-shadow:0 1px 5px #0008">${i + 1}</span>`, iconSize: [32,32], iconAnchor: [16,16] }) })
         const tip = document.createElement('div'); tip.dir = 'rtl'
@@ -149,7 +154,7 @@ export default function CityMap({ places, selected, onSelect, walks = [], showQu
   useEffect(() => {
     const m = map.current
     const points = walks.flatMap((w) => paths[w.id]?.line || [])
-    if (m && points.length && !me) m.fitBounds(L.latLngBounds(points).pad(0.12), { animate: false, maxZoom: 15 })
+    if (m && points.length && !me) m.fitBounds(L.latLngBounds(points).pad(0.12), { animate: false, maxZoom: 17 })
   }, [walkKey])
 
   useEffect(() => {
