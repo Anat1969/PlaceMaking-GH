@@ -1,16 +1,19 @@
-import { useEffect, useRef } from 'react'
+import StreetLayer from './StreetLayer'
+import { useEffect, useRef, useState } from 'react'
 import L from 'leaflet'
 import { Place, LAYERS, Walk, placeById } from '../data/places'
 import { RINGS, RingId, elementById } from '../data/rings'
 import { QUARTERS } from '../data/city'
-import { profile, Doc } from '../lib/logic'
+import { Doc } from '../lib/logic'
+import { coverOf } from '../data/media'
+import { needsLocation } from '../data/identity'
 import { PATHS as paths } from '../data/paths'
 
 const RAD: Record<RingId, number> = { tnua: 42, lev: 30, ruach: 18 }
 
 // סמן = טביעת האצבע של המקום, בזעיר. הנקודה במרכז בצבע השכבה.
 function pinSvg(p: Place, size: number, selected: boolean) {
-  const pr = profile(p)
+  const pr = Object.fromEntries(RINGS.map((r) => [r.id, r.id === p.ring ? 100 : 0])) as Record<RingId, number>
   const rings = RINGS.map((r) => {
     const c = 2 * Math.PI * RAD[r.id]
     return `<circle cx="50" cy="50" r="${RAD[r.id]}" fill="none" stroke="${r.color}" stroke-opacity=".22" stroke-width="11"/><circle cx="50" cy="50" r="${RAD[r.id]}" fill="none" stroke="${r.color}" stroke-width="11" stroke-dasharray="${(c * pr[r.id]) / 100} ${c}" transform="rotate(-90 50 50)"/>`
@@ -31,18 +34,21 @@ type Props = {
   height?: string
   me?: [number, number] | null
   numbered?: boolean
+  streetControl?: boolean
 }
 
-export default function CityMap({ places, selected, onSelect, walks = [], showQuarters = true, docs = [], onMapClick, fit, height = '100%', me, numbered }: Props) {
+export default function CityMap({ places, selected, onSelect, walks = [], showQuarters = true, docs = [], onMapClick, fit, height = '100%', me, numbered, streetControl = false }: Props) {
+  const [readyMap, setReadyMap] = useState<L.Map | null>(null)
   const el = useRef<HTMLDivElement>(null)
   const map = useRef<L.Map | null>(null)
   const layer = useRef<L.LayerGroup | null>(null)
+  const fitted = useRef(false)
   const clickRef = useRef(onMapClick)
   clickRef.current = onMapClick
 
   useEffect(() => {
     if (!el.current || map.current) return
-    const m = L.map(el.current, { zoomControl: true, attributionControl: true, scrollWheelZoom: true }).setView([31.795, 34.652], 13)
+    const m = L.map(el.current, { zoomControl: true, attributionControl: true, scrollWheelZoom: true, zoomAnimation: false, fadeAnimation: false, markerZoomAnimation: false }).setView([31.795, 34.652], 13)
     L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '&copy; OpenStreetMap',
       maxZoom: 19,
@@ -51,8 +57,11 @@ export default function CityMap({ places, selected, onSelect, walks = [], showQu
     m.on('click', (e: L.LeafletMouseEvent) => clickRef.current?.(e.latlng.lat, e.latlng.lng))
     layer.current = L.layerGroup().addTo(m)
     map.current = m
-    setTimeout(() => m.invalidateSize(), 50)
+    setReadyMap(m)
+    const resizeTimer = setTimeout(() => m.invalidateSize(), 50)
     return () => {
+      clearTimeout(resizeTimer)
+      m.stop()
       m.remove()
       map.current = null
     }
@@ -74,10 +83,12 @@ export default function CityMap({ places, selected, onSelect, walks = [], showQu
     walks.forEach((w) => {
       // שביל אמיתי לאורך הרחובות, מחושב מראש בניתוב להולכי רגל. בלי שביל: קו ישר מקווקו.
       const real = paths[w.id]?.line
-      const pts = real || w.stops.map((s) => placeById(s.place)).filter(Boolean).map((p) => [p!.lat, p!.lng] as [number, number])
+      // ניתוב מחושב אינו אישור רציפות. טבעות שתוואיהן בבירור אינן מוצגות כנתיב.
+      if (w.ring || !real) return
+      const pts = real
       const color = w.ring ? RINGS.find((r) => r.id === w.ring)!.color : '#14202B'
       L.polyline(pts, { color: '#fff', weight: 8, opacity: 0.85, lineJoin: 'round' }).addTo(g)
-      L.polyline(pts, { color, weight: 4, opacity: 0.95, lineJoin: 'round', dashArray: real ? undefined : '6 8' }).addTo(g)
+      L.polyline(pts, { color, weight: 4, opacity: 0.8, lineJoin: 'round', dashArray: '6 8' }).addTo(g)
       if (numbered) w.stops.forEach((s, i) => {
         const p = placeById(s.place)
         if (!p) return
@@ -88,7 +99,7 @@ export default function CityMap({ places, selected, onSelect, walks = [], showQu
       L.circle(me, { radius: 40, color: '#2B6CA3', weight: 1, fillOpacity: 0.12 }).addTo(g)
       L.marker(me, { zIndexOffset: 3000, interactive: false, icon: L.divIcon({ className: 'pm-pin', html: '<span class="me-dot"></span>', iconSize: [18, 18], iconAnchor: [9, 9] }) }).addTo(g)
     }
-    places.forEach((p) => {
+    places.filter((p) => !needsLocation(p)).forEach((p) => {
       const sel = p.id === selected
       const size = sel ? 44 : 28
       const mk = L.marker([p.lat, p.lng], {
@@ -97,7 +108,18 @@ export default function CityMap({ places, selected, onSelect, walks = [], showQu
         title: p.name,
         zIndexOffset: sel ? 1000 : 0,
       })
-      mk.bindTooltip(`<strong>${p.name}</strong><br/><span style="color:#77818A">${LAYERS[p.layer].name}${p.approx ? ' · מיקום משוער' : ''}</span>`, { className: 'pm-tip', direction: 'top', offset: [0, -size / 2] })
+      const tip = document.createElement('div')
+      tip.dir = 'rtl'
+      const photo = coverOf(p.id)
+      if (photo) {
+        const img = document.createElement('img')
+        img.src = photo.src; img.alt = photo.caption; img.className = 'map-tip-photo'
+        img.addEventListener('error', () => img.remove(), { once: true })
+        tip.append(img)
+      }
+      const name = document.createElement('strong'); name.textContent = p.name; tip.append(name)
+      const label = document.createElement('div'); label.textContent = `${LAYERS[p.layer].name}${p.approx ? ' · מיקום משוער' : ' · מיקום מהמאגר'}`; tip.append(label)
+      mk.bindTooltip(tip, { className: 'pm-tip', direction: 'top', offset: [0, -size / 2] })
       mk.on('click', () => onSelect?.(p.id))
       mk.addTo(g)
     })
@@ -109,17 +131,18 @@ export default function CityMap({ places, selected, onSelect, walks = [], showQu
         .bindTooltip(`<strong>${elementById(d.element).name}: ${d.state}</strong><br/>${d.note || ''}`, { className: 'pm-tip', direction: 'top' })
         .addTo(g)
     })
-    if (fit && places.length && !me) {
+    if (fit && !fitted.current && places.length && !me) {
       const b = L.latLngBounds(places.map((p) => [p.lat, p.lng] as [number, number]))
-      m.fitBounds(b.pad(0.25), { maxZoom: 15 })
+      m.fitBounds(b.pad(0.25), { maxZoom: 15, animate: false })
+      fitted.current = true
     }
   }, [places, selected, walks, showQuarters, docs, fit, onSelect, me, numbered])
 
   useEffect(() => {
     const m = map.current
     const p = places.find((x) => x.id === selected)
-    if (m && p && !fit) m.panTo([p.lat, p.lng], { animate: true })
+    if (m && p && !needsLocation(p) && !fit) m.panTo([p.lat, p.lng], { animate: false })
   }, [selected])
 
-  return <div ref={el} style={{ width: '100%', height }} />
+  return <div style={{ position: 'relative', width: '100%', height }}><div ref={el} style={{ width: '100%', height: '100%' }} />{streetControl && <StreetLayer map={readyMap} />}</div>
 }

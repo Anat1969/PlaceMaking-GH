@@ -346,3 +346,22 @@ mark.insight { background: linear-gradient(transparent 45%, var(--marker) 45%, v
 
 .hero-credit { font: 10.5px var(--mono); color: rgba(255,255,255,.7); margin-top: 14px; }
 .lab { max-width: 880px; }
+
+/* אטלס: מדיה, ידע וקשר בין קני מידה */
+.map-tip-photo { display:block; width:180px; height:112px; object-fit:contain; background:#f5efe4; margin-bottom:6px; }
+.pm-tip { max-width:220px; white-space:normal; }
+.knowledge-photo { width:100%; max-height:320px; object-fit:contain; display:block; background:var(--paper, #F5EFE4); }
+.knowledge-empty { padding:24px 12px; border:1px dashed #8b8072; background:#f5efe4; color:#4c5864; text-align:center; }
+.knowledge-field { display:grid; gap:6px; margin-top:12px; }
+.knowledge-field textarea { resize:vertical; width:100%; box-sizing:border-box; }
+.knowledge-queue { padding:12px; margin:12px 0; border-right:3px solid #D9822B; background:#FBEBD9; }
+.place-knowledge { min-width:0; }
+.place-knowledge summary, .knowledge-queue summary { cursor:pointer; font-weight:700; }
+.place-knowledge .credit { overflow-wrap:anywhere; }
+
+.street-control { position:absolute; top:88px; inset-inline-end:12px; z-index:800; display:grid; gap:4px; max-width:240px; padding:8px; background:var(--sheet); box-shadow:var(--shadow-2); }
+.street-control small { display:block; font-size:11px; }
+.source-block { padding:12px 0; border-bottom:1px solid var(--rule); overflow-wrap:anywhere; scroll-margin-top:90px; }
+.sources-page table { border-collapse:collapse; min-width:560px; width:100%; }
+.sources-page td { padding:8px; border:1px solid var(--rule); vertical-align:top; }
+.sources-page article p { white-space:pre-line; }

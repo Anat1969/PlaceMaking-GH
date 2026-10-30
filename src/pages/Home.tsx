@@ -33,9 +33,9 @@ export default function Home() {
               אשדוד,<br />עיר של טבעות
             </motion.h1>
             <div className="lead">
-              <p>העיר כמוזיאון חי, שמספר את סיפורו תוך כדי תנועה.</p>
+              <p>אטלס חי של העיר: המרחב, האנשים, הזיכרון והעתיד.</p>
               <p>שלוש טבעות: <strong>הגוף</strong> ליד הים, <strong>הלב</strong> ברובעים הוותיקים, <strong>הרוח</strong> במרכז.</p>
-              <p><mark className="insight">כל מקום מתועד, נמדד, מתוכנן ומסופר במקום אחד.</mark></p>
+              <p><mark className="insight">מארגנים ידע עירוני, ומתוכו מתכננים חוויה.</mark></p>
             </div>
             <div className="row">
               <a className="press btn btn-primary" href={href('atlas')}>לאטלס העיר</a>
@@ -66,7 +66,7 @@ export default function Home() {
             [WALKS.length, 'מסלולי שיטוט, 3 מהם טבעות'],
             [QUARTERS.length, 'רובעים וקהילות'],
             [ELEMENTS.length, 'רכיבים בארגז הכלים'],
-            ['80,000 ₪', 'אומדן פיילוט טבעת הלב'],
+            ['3', 'קריאות תכנוניות: אסטרטגיה, סירקולציה, קומפוזיציה'],
           ].map(([v, t], i) => (
             <div className="card kpi" key={i}>
               <div className="v">{v}</div>
@@ -88,7 +88,7 @@ export default function Home() {
         </div>
 
         <h2 className="section-title">חוויה בכל החושים</h2>
-        <p className="section-sub">לא רק לקרוא על העיר: לראות אותה באור, לשמוע אותה בקול, לשחק בה ולנשום בה.</p>
+        <p className="section-sub">מהידע אל החוויה: לראות אותה באור, לשמוע אותה בקול, לשחק בה ולנשום בה.</p>
         <div className="mosaic">
           {[
             { src: '/media/s14-arches.jpg', t: 'מיפוי הקרנה על קשתות המצודה', to: 'mapping', cls: 'm-big' },

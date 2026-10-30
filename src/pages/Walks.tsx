@@ -9,15 +9,9 @@ import { href } from '../lib/route'
 import { PATHS } from '../data/paths'
 import { coverOf } from '../data/media'
 
-// אורך אמיתי לאורך השביל, מהניתוב. בלי שביל: הערכה מקו ישר
-const km = (w: Walk) => (PATHS[w.id] ? PATHS[w.id].meters / 1000 : kmAir(w))
-const kmAir = (w: Walk) => {
-  const ps = w.stops.map((s) => placeById(s.place)!).filter(Boolean)
-  let d = 0
-  for (let i = 1; i < ps.length; i++) d += Math.hypot((ps[i].lat - ps[i - 1].lat) * 111, (ps[i].lng - ps[i - 1].lng) * 94.6)
-  if (w.ring) d += Math.hypot((ps[0].lat - ps[ps.length - 1].lat) * 111, (ps[0].lng - ps[ps.length - 1].lng) * 94.6)
-  return d * 1.25 // רחובות אינם קו ישר
-}
+// אורך ניתוב מחושב בלבד. אין לאמוד אורך שימושי באמצעות מרחק אווירי.
+const km = (w: Walk) => !w.ring && PATHS[w.id] ? (PATHS[w.id].meters / 1000).toFixed(1) : '—'
+const minutes = (w: Walk) => !w.ring && PATHS[w.id] ? String(Math.round(PATHS[w.id].meters / 1000 / 4 * 60)) : '—'
 const avgProfile = (ps: Place[]) => Object.fromEntries(RINGS.map((r) => [r.id, Math.round(ps.reduce((a, p) => a + profile(p)[r.id], 0) / ps.length)])) as Record<RingId, number>
 
 export function WalksPage() {
@@ -40,7 +34,7 @@ export function WalksPage() {
                 <RingGlyph p={avgProfile(ps)} size={54} stroke={9} />
               </div>
               <p className="muted" style={{ marginTop: 6 }}>{w.description}</p>
-              <div className="row muted" style={{ fontSize: 13 }}><span><bdi className="num">{w.stops.length}</bdi> תחנות</span>·<span><bdi className="num">{km(w).toFixed(1)}</bdi> ק"מ</span>·<span><bdi className="num">{Math.round((km(w) / 4) * 60)}</bdi> דק' הליכה</span></div>
+              <div className="row muted" style={{ fontSize: 13 }}><span><bdi className="num">{w.stops.length}</bdi> תחנות</span>·<span><bdi className="num">{km(w)}</bdi> ק"מ</span>·<span><bdi className="num">{minutes(w)}</bdi> דק' הליכה</span></div>
             </a>
           )
         })}
@@ -72,8 +66,8 @@ export function WalkPage({ id }: { id: string }) {
           <div className="page-sub"><Lines text={w.description} /></div>
           <div className="grid-kpi" style={{ gridTemplateColumns: 'repeat(3, minmax(0,1fr))' }}>
             <div className="card kpi"><div className="v">{w.stops.length}</div><div className="t">תחנות</div></div>
-            <div className="card kpi"><div className="v">{km(w).toFixed(1)}</div><div className="t">ק"מ לאורך השביל</div></div>
-            <div className="card kpi"><div className="v">{Math.round((km(w) / 4) * 60)}</div><div className="t">דקות הליכה</div></div>
+            <div className="card kpi"><div className="v">{km(w)}</div><div className="t">ק"מ לאורך השביל</div></div>
+            <div className="card kpi"><div className="v">{minutes(w)}</div><div className="t">דקות הליכה</div></div>
           </div>
           <div className="card" style={{ marginTop: 14, display: 'grid', gridTemplateColumns: 'auto minmax(0,1fr)', gap: 14, alignItems: 'center' }}>
             <RingGlyph p={pr} size={92} labels />
@@ -82,8 +76,8 @@ export function WalkPage({ id }: { id: string }) {
               <div className="tone tone-insight" style={{ boxShadow: 'none', marginTop: 6 }}><Rich as="p">{`הטבעת החלשה במסלול: ==${RINGS.find((r) => r.id === weakRing)!.name}==. שם מתחילים.`}</Rich></div>
             </div>
           </div>
-          <a className="press btn btn-primary" href={href('tour', { id: w.id })} style={{ marginTop: 14 }}>יציאה לסיור חי</a>
-          <p className="src">מקור: {w.source}. השביל והאורך מחושבים לאורך הרחובות, בניתוב הולכי רגל של OpenStreetMap.</p>
+          <a className="press btn btn-primary" href={href('tour', { id: w.id })} style={{ marginTop: 14 }}>תוכן התחנות וסיור חי</a>
+          <p className="src">מקור: {w.source}. {w.ring ? 'תוואי הטבעת בבירור. סדר העוגנים אינו מסלול ניווט מאומת.' : 'ניתוב הולכי רגל מחושב מ־OpenStreetMap; טרם אומתו תנאי השטח והנגישות.'}</p>
         </div>
         <div className="card" style={{ padding: 0, height: 440 }}>
           <CityMap places={ps} walks={[w]} numbered fit showQuarters={false} height="440px" onSelect={(pid) => (location.hash = href('place', { id: pid }).slice(1))} />

@@ -1,3 +1,4 @@
+import Sources from './pages/Sources'
 import TopBar from './components/TopBar'
 import { useRoute } from './lib/route'
 import Home from './pages/Home'
@@ -22,6 +23,7 @@ export default function App() {
   if (page === 'show') return <Show />
   let body
   switch (page) {
+    case 'sources': body = <Sources />; break
     case 'atlas': body = <Atlas route={route} />; break
     case 'place': body = <PlacePage id={params.id} />; break
     case 'walks': body = <WalksPage />; break
