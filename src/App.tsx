@@ -9,6 +9,7 @@ const Sources=lazy(()=>import('./pages/Sources'))
 import TopBar from './components/TopBar'
 import { useRoute } from './lib/route'
 import Home from './pages/Home'
+import Cover from './pages/Cover'
 const Atlas=lazy(()=>import('./pages/Atlas'))
 const PlacePage=lazy(()=>import('./pages/Place'))
 const WalksPage=lazy(()=>import('./pages/Walks').then(m=>({default:m.WalksPage})))
@@ -33,6 +34,7 @@ export default function App() {
   if (page === 'show') return <Suspense fallback={<Loading />}><Show /></Suspense>
   let body
   switch (page) {
+    case 'cover': body = <Cover />; break
     case 'workspace': body = <Workspace />; break
     case 'route-editor': body = <RouteEditor />; break
     case 'understand': body = <Understand />; break
@@ -57,8 +59,8 @@ export default function App() {
     <>
       <TopBar page={page} />
       <AppContext route={route} />
-      <main id="main-content" tabIndex={-1} key={page === 'atlas' || page === 'tour' ? page : page + JSON.stringify(params)}><PageBoundary key={page}>{!['home','atlas','tour','route-editor'].includes(page)&&<PageOutline page={page}/>} <Suspense fallback={<Loading />}>{body}</Suspense></PageBoundary></main>
-      {page !== 'atlas' && page !== 'tour' && (
+      <main id="main-content" tabIndex={-1} key={page === 'atlas' || page === 'tour' ? page : page + JSON.stringify(params)}><PageBoundary key={page}>{!['cover','home','atlas','tour','route-editor'].includes(page)&&<PageOutline page={page}/>} <Suspense fallback={<Loading />}>{body}</Suspense></PageBoundary></main>
+      {page !== 'atlas' && page !== 'tour' && page !== 'cover' && (
         <footer className="app-footer no-print"><div><strong>שלוש טבעות / אשדוד</strong><span>ידע עירוני, חוויה ותכנון</span></div><nav aria-label="קישורים נוספים"><a href="#/sources">מקורות ומעמד המידע</a><a href="#/method">שיטת העבודה</a><a href="#/workspace">שמירה וגיבוי</a><a href="#/show">מצגת לראש העיר</a></nav><small>מפות בסיס: OpenStreetMap · מקור ודיוק מוצגים ליד כל שכבה.</small></footer>
       )}
     </>

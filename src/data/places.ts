@@ -196,7 +196,9 @@ const locationFixes: Record<string, [number, number, string, string]> = {
 }
 anchors.forEach((p) => { const fix = locationFixes[p.id]; if (fix) { p.lat = fix[0]; p.lng = fix[1]; p.locationSource = { label: fix[2], url: fix[3], precision: 'מיקום עוגן; כניסה ורציפות דרך טרם אומתו' } } })
 export const PLACES: Place[] = [...heritage, ...renewals, ...projects, ...anchors, ...corridorAnchors]
-export const placeById = (id: string) => PLACES.find((p) => p.id === id)
+// תחנות אישיות מעורך המסלולים נרשמות כאן, ולא נכנסות למאגר המשותף ולספירות.
+export const CUSTOM_PLACES = new Map<string, Place>()
+export const placeById = (id: string) => PLACES.find((p) => p.id === id) || CUSTOM_PLACES.get(id)
 
 // מסלולים: תשעת המסלולים מאפליקציית השימור, ושלוש הטבעות כמסלולי הליכה.
 export type Walk = { id: string; title: string; theme: string; description: string; ring?: RingId; stops: { place: string; text: string }[]; source: string }

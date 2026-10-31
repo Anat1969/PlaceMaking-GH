@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 export type Route = { page: string; params: Record<string, string> }
 const parse = (): Route => {
   const [path, query = ''] = window.location.hash.replace(/^#\/?/, '').split('?')
-  return { page: path || 'home', params: Object.fromEntries(new URLSearchParams(query)) }
+  return { page: path || 'cover', params: Object.fromEntries(new URLSearchParams(query)) }
 }
 
 export function useRoute() {
@@ -25,7 +25,7 @@ export function useRoute() {
 
 export const href = (page: string, params?: Record<string, string>) => {
   const q = params ? '?' + new URLSearchParams(params).toString() : ''
-  return page === 'home' ? '#/' : `#/${page}${q}`
+  return page === 'cover' ? '#/' : `#/${page}${q}`
 }
 export const go = (page: string, params?: Record<string, string>) => {
   window.location.hash = href(page, params).slice(1)
