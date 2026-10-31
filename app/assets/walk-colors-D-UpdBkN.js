@@ -1,0 +1,1 @@
+import{R as i}from"./index-DjJgB-8S.js";const n=["#087F8C","#7A3E9D","#9E4B16","#206A3D","#BB3148","#355BB5","#786600","#9F397B","#3F6168"];function u(r){if(r.ring)return i.find(o=>o.id===r.ring).color;const e=Number(r.id.replace("route-",""))-1;return n[Number.isInteger(e)&&e>=0?e%n.length:0]}export{u as w};
