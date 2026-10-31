@@ -1,5 +1,6 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
+import './data/custom-walks'
 import App from './App'
 import 'leaflet/dist/leaflet.css'
 import './app.css'

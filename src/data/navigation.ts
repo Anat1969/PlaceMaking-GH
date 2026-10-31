@@ -12,7 +12,7 @@ export const PAGES:{page:string;title:string;section:SectionId;purpose:string;ac
  {page:'sources',title:'מקורות ומעמד המידע',section:'understand',purpose:'לבדוק מה מקור הנתון, מה מעמדו ומה עדיין חסר.',action:'בדקו את מקור המידע'},
  {page:'method',title:'שיטת העבודה',section:'understand',purpose:'להבחין בין מידע, פרשנות והצעה ולחבר אותם להחלטה.',action:'הכירו את השיטה'},
  {page:'walks',title:'טבעות ומסלולים',section:'experience',purpose:'לבחור רצף מרחבי ולהכיר את התחנות והחיבורים שלו.',action:'בחרו מסלול'},
- {page:'route-editor',title:'עורך הטבעות',section:'experience',purpose:'לדייק תוואי סגור על המפה ולשמור או להעביר עותק אישי.',action:'ערכו תוואי על המפה'},
+ {page:'route-editor',title:'עורך המסלולים',section:'experience',purpose:'להתוות מסלול חדש בהקשה על המפה, תחנה אחר תחנה, או לדייק את תוואי הטבעות.',action:'הקישו על המפה כדי להוסיף תחנה'},
  {page:'xp',title:'חוויית העיר',section:'experience',purpose:'לחבר סקרנות, רגש ופעילות דרך מקום ותוכן.',action:'בחרו דרך לחוות'},
  {page:'games',title:'משחקים וחקירה',section:'experience',purpose:'לחקור את הסיפור העירוני במשחק עצמאי בתוך האפליקציה.',action:'התחילו משחק'},
  {page:'mapping',title:'מעבדת ההקרנה',section:'create',purpose:'לבחון רעיון של הקרנה על חזית; ההדמיה אינה התקנה בשטח.',action:'פתחו את המעבדה'},
