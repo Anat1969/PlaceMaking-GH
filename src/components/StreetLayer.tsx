@@ -1,5 +1,10 @@
 import { useEffect, useState } from 'react'
 import L from 'leaflet'
+import { loadStreets } from '../lib/streets-data'
+import { rankGroup, GROUPS, RankGroup } from '../lib/street-rank'
+
+// צבע ועובי לפי דרג הרחוב (מידרג). רצועות חניה (9) מוסתרות. המשמעות היא הערכה מתוך שמות הרחובות.
+const STYLE: Record<RankGroup, { color: string; weight: number }> = { boulevard: { color: '#B3261E', weight: 4 }, main: { color: '#D9822B', weight: 3 }, local: { color: '#1F8A5B', weight: 1.6 }, unknown: { color: '#8C979F', weight: 1.4 }, off: { color: '#8C979F', weight: 1 } }
 
 export default function StreetLayer({ map }: { map: L.Map | null }) {
   const [visible, setVisible] = useState(false)
@@ -11,14 +16,16 @@ export default function StreetLayer({ map }: { map: L.Map | null }) {
     const abort = new AbortController()
     let layer: L.GeoJSON | undefined
     setStatus('טוען רחובות…')
-    fetch(import.meta.env.BASE_URL + 'data/streets.geojson', { signal: abort.signal }).then((r) => { if (!r.ok) throw Error('load'); return r.json() }).then((data) => {
+    loadStreets().then((data) => {
       if (abort.signal.aborted) return
-      layer = L.geoJSON(data, { style: { color: '#65787c', weight: 2, opacity: 0.65, renderer: L.canvas() }, onEachFeature: (feature, item) => {
+      const renderer = L.canvas()
+      layer = L.geoJSON(data as unknown as GeoJSON.FeatureCollection, { filter: (f) => rankGroup(f.properties?.hierarchy) !== null, style: (f) => { const g = rankGroup(f?.properties?.hierarchy) || 'unknown'; return { ...STYLE[g], opacity: 0.8, renderer } }, onEachFeature: (feature, item) => {
         const tip = document.createElement('div'); tip.dir = 'rtl'
-        tip.textContent = `${feature.properties?.name || 'מקטע ללא שם'} · ${feature.properties?.quarter || 'רובע לא צוין'} · מקובץ הרחובות שסופק`
+        const g = GROUPS.find((x) => x.id === rankGroup(feature.properties?.hierarchy))
+        tip.textContent = `${feature.properties?.name || 'מקטע ללא שם'} · ${feature.properties?.quarter || 'רובע לא צוין'} · ${g ? g.label : ''} (מידרג ${feature.properties?.hierarchy ?? '?'}, הערכה)`
         item.bindTooltip(tip)
       }}).addTo(map)
-      setStatus('2,991 מקטעים · קובץ שסופק · אינו תוואי ניווט')
+      setStatus(`${layer.getLayers().length.toLocaleString('en-US')} מקטעים · אדום שדרה · כתום ראשי · ירוק מקומי. הדרג: הערכה מתוך השמות.`)
     }).catch((e) => { if (e.name !== 'AbortError') setStatus('טעינת הרחובות נכשלה. כבו והפעילו שוב לניסיון נוסף.') })
     return () => { abort.abort(); if (layer && map.hasLayer(layer)) map.removeLayer(layer) }
   }, [visible, map])

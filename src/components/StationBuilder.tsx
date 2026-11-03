@@ -6,6 +6,7 @@ import { needsLocation } from '../data/identity'
 import { CustomWalk, Station, loadCustom, saveCustom, removeCustom, routeThrough } from '../data/custom-walks'
 import { meters } from '../lib/senses'
 import { href } from '../lib/route'
+import RouteStreetProfile from './RouteStreetProfile'
 
 // בניית מסלול מתחנות: הקשה על מקום מהמאגר מוסיפה אותו כתחנה; הקשה בכל נקודה אחרת מוסיפה תחנה אישית.
 // השביל בין התחנות מחושב לאורך הרחובות אחרי כל שינוי.
@@ -141,6 +142,7 @@ export default function StationBuilder() {
           <div><span className="label">הליכה</span><strong className="num">{minutes}</strong> <small>דק'</small></div>
         </div>
         <p className="muted" role="status" style={{ minHeight: 18, margin: 0 }}>{busy ? 'מחשב שביל ברחובות' : w.stations.length < 2 ? 'הוסיפו תחנות במפה.' : w.routed ? 'השביל עובר ברחובות ובשבילים.' : ''}</p>
+        {w.line.length > 1 && !busy && <RouteStreetProfile line={w.line} compact />}
 
         <ol className="builder-list">
           {w.stations.map((s, i) => (
