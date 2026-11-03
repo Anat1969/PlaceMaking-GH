@@ -10,6 +10,7 @@ import { href } from '../lib/route'
 
 import { PATHS } from '../data/paths'
 import { coverOf } from '../data/media'
+import RouteStreetProfile from '../components/RouteStreetProfile'
 
 // אורך ניתוב מחושב בלבד. אין לאמוד אורך שימושי באמצעות מרחק אווירי.
 const km = (w: Walk) => !w.ring && PATHS[w.id] ? (PATHS[w.id].meters / 1000).toFixed(1) : '—'
@@ -82,11 +83,12 @@ export function WalkPage({ id }: { id: string }) {
               <div className="tone tone-insight" style={{ boxShadow: 'none', marginTop: 6 }}><Rich as="p">{`הטבעת החלשה במסלול: ==${RINGS.find((r) => r.id === weakRing)!.name}==. שם מתחילים.`}</Rich></div>
             </div>
           </div>
+          {PATHS[w.id]?.line?.length > 1 && <div style={{ marginTop: 14 }}><RouteStreetProfile line={PATHS[w.id].line} /></div>}
           <a className="press btn btn-primary" href={href('tour', { id: w.id })} style={{ marginTop: 14 }}>תוכן התחנות וסיור חי</a>
           <p className="src">מקור: {w.source}. {w.ring ? 'התוואי והתחנות מוצגים בצבע המסלול. זהו תוואי מחושב ומוצע לדיוק, לא מסלול ניווט מאומת.' : 'ניתוב הולכי רגל מחושב מ־OpenStreetMap; טרם אומתו תנאי השטח והנגישות.'}</p>
         </div>
         <div className="card" style={{ padding: 0, height: 440 }}>
-          <CityMap places={ps} walks={[w]} numbered fit showQuarters={false} height="440px" onSelect={(pid) => (location.hash = href('place', { id: pid }).slice(1))} />
+          <CityMap streetControl places={ps} walks={[w]} numbered fit showQuarters={false} height="440px" onSelect={(pid) => (location.hash = href('place', { id: pid }).slice(1))} />
         </div>
       </div>
 
