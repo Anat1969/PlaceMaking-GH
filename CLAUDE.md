@@ -43,6 +43,8 @@
 - 31.10.2026: תיקון של ענת: עורך מסלולים בהקשה על המפה (תחנה אחר תחנה, שביל ברחובות), ודף כריכה מונפש ב-`#/`. המבט על עבר ל-`#/home`.
 - 03.11.2026: "כמה שקט המסלול": רצועה כמו חתך גובה בדף כל מסלול ובעורך המסלולים, צבועה לפי דרג הרחוב (מידרג משכבת הרחובות של העירייה, 03.11.2026), עם שורת תובנה ו"איך נבדק". דגימה כל 10 מ', מקטע קרוב עד 15 מ', אחרת שביל. משמעות הקודים היא הערכה מתוך השמות, לא מקרא רשמי. שכבת הרחובות במפה צבועה לפי דרג, בלי רצועות חניה. חישוב טהור: `src/lib/street-rank.ts`, בדיקה: `node --experimental-strip-types scripts/check-street-rank.mjs`. השדות נוספו ב-`scripts/merge-street-fields.mjs`.
 
+- 06.11.2026: גשר מארק ובינה (https://arc-and-bina.vercel.app). `index.html` (וגם `app/index.html`) טוען את `https://arc-and-bina.vercel.app/bridge.js`. מי שמגיע עם `?ab_q=...&ab_back=...` לפני ה-# רואה פס תחתון עם שאלת המחקר וכפתור חזרה. הניתוב קורא רק את ה-hash, ולכן הפרמטרים לא מפריעים. הקישורים הנכנסים: "נהר" אל `#/place?id=h11`, "זרע" אל `#/place?id=a8`, "דבורה" אל `#/place?id=a9`. המיפוי בצד השני: `BRIDGES` ב-`src/data.js` של ArcAndBina-GH. `CACHE` ב-`sw.js` עלה ל-`three-rings-v2`.
+
 ## למדנו בבנייה
 - `scripts/test-atlas.cjs` נכשל גם על main (03.11.2026): כותרת "אטלס העיר" לא נמצאת בשם מדויק, ו-`require.resolve('vite/bin/vite.js')` חסום ב-exports של vite. צריך תיקון נפרד.
 - שרת הניתוב routing.openstreetmap.de מחזיר 403 לדפדפן אוטומטי (headless), אף שה-CORS פתוח. לכן בעורך: OSRM, אחריו Valhalla (valhalla1.openstreetmap.de, polyline6), ובסוף קו ישר מסומן.
