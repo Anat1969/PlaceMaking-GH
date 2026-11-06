@@ -42,6 +42,8 @@
 
 - 31.10.2026: תיקון של ענת: עורך מסלולים בהקשה על המפה (תחנה אחר תחנה, שביל ברחובות), ודף כריכה מונפש ב-`#/`. המבט על עבר ל-`#/home`.
 
+- 06.11.2026: גשר מארק ובינה (https://arc-and-bina.vercel.app). `index.html` (וגם `app/index.html`) טוען את `https://arc-and-bina.vercel.app/bridge.js`. מי שמגיע עם `?ab_q=...&ab_back=...` לפני ה-# רואה פס תחתון עם שאלת המחקר וכפתור חזרה. הניתוב קורא רק את ה-hash, ולכן הפרמטרים לא מפריעים. הקישורים הנכנסים: "נהר" אל `#/place?id=h11`, "זרע" אל `#/place?id=a8`, "דבורה" אל `#/place?id=a9`. המיפוי בצד השני: `BRIDGES` ב-`src/data.js` של ArcAndBina-GH. `CACHE` ב-`sw.js` עלה ל-`three-rings-v2`.
+
 ## למדנו בבנייה
 - שרת הניתוב routing.openstreetmap.de מחזיר 403 לדפדפן אוטומטי (headless), אף שה-CORS פתוח. לכן בעורך: OSRM, אחריו Valhalla (valhalla1.openstreetmap.de, polyline6), ובסוף קו ישר מסומן.
 - ה-API של ויקישיתוף חוסם את הסביבה (429). WebFetch עובד, וקבצי upload/thumb.wikimedia.org נגישים ב-curl עם User-Agent.
